@@ -78,7 +78,7 @@ jobs:
 
           FLAGS="-O2 -DPEBL_EMSCRIPTEN -DPEBL_HTTP -DHTTP_LIB=3 \
             -DPREFIX=/usr/local/ -DEXECNAME=pebl2 -DPEBLNAME=pebl2 \
-            -DPEBLDIRNAME=pebl2 -DPEBL_VERSION=2.4 \
+            -DPEBLDIRNAME=pebl2 -DPEBL_VERSION=\"2.4\" \
             -DPEBL_ITERATIVE_EVAL -UPEBL_USE_LSL \
             -sUSE_SDL=2 -sUSE_SDL_NET=2 -sUSE_SDL_TTF=2 \
             -sUSE_SDL_IMAGE=2 -sUSE_SDL_MIXER=2 \
