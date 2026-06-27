@@ -1,0 +1,153 @@
+{
+  "osd_version": "1.0",
+  "definition": {
+    "scale_info": {
+      "name": "Explicit Memory in Iowa Gambling Task",
+      "code": "emigt",
+      "abbreviation": "EM-IGT",
+      "description": "8-item questionnaire assessing explicit memory of card deck outcomes following the (computerized) Iowa Gambling Task. Each item asks the participant to identify which deck (A, B, C, or D) was associated with a specific outcome pattern.",
+      "license": "CC BY 4.0",
+      "version": "1.0"
+    },
+    "implementation": {
+      "author": "Zi-Lin",
+      "license": "CC BY 4.0"
+    },
+    "items": [
+      {
+        "id": "em1",
+        "type": "multi",
+        "text_key": "em1",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      },
+      {
+        "id": "em2",
+        "type": "multi",
+        "text_key": "em2",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      },
+      {
+        "id": "em3",
+        "type": "multi",
+        "text_key": "em3",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      },
+      {
+        "id": "em4",
+        "type": "multi",
+        "text_key": "em4",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      },
+      {
+        "id": "em5",
+        "type": "multi",
+        "text_key": "em5",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      },
+      {
+        "id": "em6",
+        "type": "multi",
+        "text_key": "em6",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      },
+      {
+        "id": "em7",
+        "type": "multi",
+        "text_key": "em7",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      },
+      {
+        "id": "em8",
+        "type": "multi",
+        "text_key": "em8",
+        "required": true,
+        "options": [
+          {"text_key": "option_A", "value": "A"},
+          {"text_key": "option_B", "value": "B"},
+          {"text_key": "option_C", "value": "C"},
+          {"text_key": "option_D", "value": "D"}
+        ]
+      }
+    ]
+  },
+  "translations": {
+    "en": {
+      "LANGUAGE": "en",
+      "scale_title": "Post-Task Questions",
+      "scale_instructions": "Based on your experience during the game, please answer the following questions. There are no right or wrong answers \u2014 just answer based on your memory and feelings during the game.",
+      "em1": "After experiencing the entire game, which deck accumulated the most winnings for you overall?",
+      "em2": "After experiencing the entire game, which deck accumulated the most losses for you overall?",
+      "em3": "After experiencing the entire game, which deck gave you the most winning trials overall?",
+      "em4": "After experiencing the entire game, which deck gave you the most losing trials overall?",
+      "em5": "During the game, which deck gave you the largest single-trial win?",
+      "em6": "During the game, which deck gave you the largest single-trial loss?",
+      "em7": "During the game, which deck were you most willing to choose?",
+      "em8": "During the game, which deck were you least willing to choose?",
+      "option_A": "Deck A",
+      "option_B": "Deck B",
+      "option_C": "Deck C",
+      "option_D": "Deck D",
+      "debrief": "Thank you for completing these questions. Please wait for further instructions."
+    },
+    "zh": {
+      "LANGUAGE": "zh",
+      "scale_title": "\u904a\u6232\u5f8c\u554f\u984c",
+      "scale_instructions": "\u6839\u64da\u60a8\u5728\u904a\u6232\u4e2d\u7684\u7d93\u6b77\uff0c\u8acb\u56de\u7b54\u4ee5\u4e0b\u554f\u984c\u3002\u6c92\u6709\u5c0d\u932f\u4e4b\u5206\uff0c\u8acb\u6839\u64da\u60a8\u5728\u904a\u6232\u904e\u7a0b\u4e2d\u7684\u8a18\u61b6\u8207\u611f\u53d7\u4f5c\u7b54\u3002",
+      "em1": "\u7d93\u6b77\u6574\u500b\u904a\u6232\u904e\u7a0b\u5f8c\uff0c\u7d2f\u7a4d\u8d77\u4f86\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u8d0f\u6700\u591a\u9322\uff1f",
+      "em2": "\u7d93\u6b77\u6574\u500b\u904a\u6232\u904e\u7a0b\u5f8c\uff0c\u7d2f\u7a4d\u8d77\u4f86\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u8f38\u6700\u591a\u9322\uff1f",
+      "em3": "\u7d93\u6b77\u6574\u500b\u904a\u6232\u904e\u7a0b\u5f8c\uff0c\u7d2f\u7a4d\u8d77\u4f86\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u8d0f\u6700\u591a\u6b21\uff1f",
+      "em4": "\u7d93\u6b77\u6574\u500b\u904a\u6232\u904e\u7a0b\u5f8c\uff0c\u7d2f\u7a4d\u8d77\u4f86\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u8f38\u6700\u591a\u6b21\uff1f",
+      "em5": "\u5728\u904a\u6232\u904e\u7a0b\u4e2d\uff0c\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u4e00\u6b21\u8d0f\u5f88\u591a\u7684\u9322\uff08\u55ae\u6b21\uff09\uff1f",
+      "em6": "\u5728\u904a\u6232\u904e\u7a0b\u4e2d\uff0c\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u4e00\u6b21\u8f38\u5f88\u591a\u7684\u9322\uff08\u55ae\u6b21\uff09\uff1f",
+      "em7": "\u5728\u904a\u6232\u904e\u7a0b\u4e2d\uff0c\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u6700\u9858\u610f\u53bb\u9078\u5b83\uff1f",
+      "em8": "\u5728\u904a\u6232\u904e\u7a0b\u4e2d\uff0c\u54ea\u4e00\u758a\u724c\u8b93\u4f60\u6700\u4e0d\u9858\u610f\u53bb\u9078\u5b83\uff1f",
+      "option_A": "A \u724c",
+      "option_B": "B \u724c",
+      "option_C": "C \u724c",
+      "option_D": "D \u724c",
+      "debrief": "\u611f\u8b1d\u60a8\u5b8c\u6210\u9019\u4e9b\u554f\u984c\uff0c\u8acb\u7b49\u5f85\u5f8c\u7e8c\u6307\u793a\u3002"
+    }
+  }
+}

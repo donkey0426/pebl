@@ -1,0 +1,58 @@
+PEBL's "cIGT": a computerized variant of the Iowa Gambling Task (IGT) that
+reads its trial-by-trial gain/loss schedule from two external data files,
+instead of using the fixed 40-card repeating Bechara deck used in PEBL's
+classic "iowa.pbl" task.
+
+This task is not officially endorsed by A. Bechara, A. Damasio, or any
+other researchers or organizations affiliated with the "Iowa" gambling
+task.
+
+Data files:
+
+cIGT-gain-ABCD.txt and cIGT-loss-ABCD.txt are tab-separated text files.
+Each defines the per-deck schedule of outcomes: each file has one row
+per card in a deck's own sequence (e.g., 60 rows = each deck has 60
+distinct cards defined), and four columns, corresponding to decks A,
+B, C, and D respectively. The Nth row gives the outcome that will be
+used the Nth time that particular deck is chosen (not the Nth trial
+overall) -- each deck keeps its own independent position pointer.
+
+The total number of trials (card selections) the participant makes is
+set separately via the "numtrials" parameter (default 100) and is
+independent of how many rows are in the gain/loss files. For example,
+with 100 total trials spread across 4 decks that each have a 60-row
+schedule, no single deck would normally be chosen more than 60 times;
+if a deck were ever chosen more times than it has rows defined, its
+schedule simply wraps back around to its first row (a safety net, not
+the expected behavior).
+
+Loss values should be 0 or negative; gain values are added, loss
+values are subtracted.
+
+Example (first 3 rows of a gain file):
+100   100   50   50
+120   80    60   40
+80    110   40   45
+
+Output data format (data/{subnum}/cigtlog-{subnum}.csv):
+
+subNum,version,trialnum,chosendeck,deckpos,win,lose,net,totalscore,borrow,time,rt
+
+  subNum     - participant code
+  version    - task version tag
+  trialnum   - overall trial number (1..numtrials)
+  chosendeck - which deck was chosen (A/B/C/D, or localized label)
+  deckpos    - which row of the CHOSEN deck's schedule was used (i.e.,
+               how many times this deck has now been chosen)
+  win        - amount won this trial
+  lose       - amount lost this trial (positive number)
+  net        - win - lose
+  totalscore - running bank total after this trial
+  borrow     - running total borrowed (loan extensions)
+  time       - timestamp of the response
+  rt         - response time in ms
+
+Parameters (see params/cigt.pbl.schema.json) allow the gain/loss file
+names, mouse/keyboard input, optional per-deck shuffling, feedback
+timing, sounds, and whether the numeric running total is displayed (in
+addition to the bar graph) to be configured without editing the script.

@@ -1,0 +1,601 @@
+ ## cIGT - Computerized Iowa Gambling Task (external schedule version)
+ ##
+ ## Based on PEBL's "iowa.pbl" (Bechara Gambling Task), originally by
+ ## Shane T. Mueller, modified by Peter Bull (2012).  This version was
+ ## further adapted to load the gain/loss schedule for each trial from
+ ## two external data files instead of using a fixed 40-card repeating
+ ## deck. This allows a researcher to supply any ABCD gain/loss schedule
+ ## (e.g., a 60-trial schedule with trial-varying rewards) without
+ ## editing the PEBL code itself.
+ ##
+ ## Not officially endorsed by A. Bechara, A. Damasio, or any other
+ ## researchers or organizations affiliated with the "Iowa" gambling task.
+ ##
+ ## DATA FILES (tab-separated, one row per trial, columns = A B C D):
+ ##   cIGT-gain-ABCD.txt   -- amount won if that deck is chosen on that trial
+ ##   cIGT-loss-ABCD.txt   -- amount lost (subtracted) if that deck is chosen
+ ##                           on that trial (values are 0 or negative)
+ ##
+ ## The number of trials is automatically determined by the number of
+ ## rows in the gain file (both files must have the same number of rows).
+ ## Each deck's row determines the outcome for the Nth time THAT deck is
+ ## chosen (not the Nth trial overall) -- i.e., each deck has its own
+ ## pointer into its column of the schedule, matching standard IGT
+ ## design where each deck has a fixed underlying sequence.
+ ##
+ ## For use with PEBL 2.0 or later. http://pebl.sf.net
+ ## Part of The PEBL Psychological Testing Battery.
+
+define Start(lPar)
+{
+  ## Initialize upload system (works for both online and native)
+  InitializeUpload()
+
+  parpairs <- [["gainfile","cIGT-gain-ABCD.txt"],
+               ["lossfile","cIGT-loss-ABCD.txt"],
+               ["numtrials",100],
+               ["DelayBetweenTrials",500],
+               ["UseMouse",1],          ## Should we use the mouse or the keyboard?
+               ["shuffledecks",0],      ## whether deck sequences should be shuffled (default off)
+               ["startvalue",2000],
+               ["rewarddelay",1500],
+               ["penaltydelay",1500],
+               ["playsounds",1],
+               ["displaycounter",0]
+              ]
+
+  gParams <- CreateParameters(parpairs,gParamFile)
+
+  ## Specify whether the mouse or keyboard should be used to respond.
+  gUseMouse <- gParams.usemouse
+
+  Initialize()
+
+  gStrings <- GetStrings(gLanguage)
+
+  gDeckImageFile    <- "media/deck.png"
+  gRewardImageFile  <- "media/Smiley_Face.jpg"
+  gPenaltyImageFile <- "media/Sad_Face.jpg"
+
+  gRewardSound  <- LoadSound("media/Sound_Win.ogg")
+  gPenaltySound <- LoadSound("media/Sound_Lose.ogg")
+
+  if(gSubNum + "" == "0")
+  {
+    gSubNum <- GetSubNum(gWin)
+  }
+
+  ## Specify the size of loans to the subject and the initial borrowings.
+  gLoan <- gParams.startvalue
+  gBorrow <- gLoan
+
+  gDisplayCounter <- gParams.displaycounter
+
+  ## Results are stored in data/{subnum}/cigtlog-{subnum}.csv
+  gFileOut <- GetNewDataFile(gSubNum,gWin,"cigtlog","csv",
+     "subNum,version,trialnum,chosendeck,deckpos,win,lose,net,totalscore,borrow,time,rt")
+
+  #####################################################################
+  ## Load the gain/loss schedule from the external data files.
+  ## Each file has one row per trial, columns tab-separated: A B C D
+  #####################################################################
+
+  gainTable <- FileReadTable(gParams.gainfile, "	")
+  lossTable <- FileReadTable(gParams.lossfile, "	")
+
+  if(Length(gainTable) != Length(lossTable))
+  {
+    SignalFatalError("cIGT: gain file and loss file must have the same number of rows.")
+  }
+
+  ## numtrials = total number of card selections the participant makes
+  ## (e.g., 100). deckSize = number of rows in each deck's own
+  ## gain/loss schedule (e.g., 60) -- i.e., how many distinct outcomes
+  ## are defined for that deck before it would need to repeat. With
+  ## numtrials spread across 4 decks, no single deck is expected to be
+  ## chosen more times than deckSize, but the Mod()-based wraparound
+  ## below is kept as a safety net in case it ever is.
+  numtrials <- ToNumber(gParams.numtrials)
+  deckSize  <- Length(gainTable)
+
+  ## Split the combined gain/loss table into one list per deck.
+  deck1Gain <- []
+  deck2Gain <- []
+  deck3Gain <- []
+  deck4Gain <- []
+  deck1Loss <- []
+  deck2Loss <- []
+  deck3Loss <- []
+  deck4Loss <- []
+
+  loop(row, gainTable)
+  {
+    deck1Gain <- Append(deck1Gain, ToNumber(Nth(row,1)))
+    deck2Gain <- Append(deck2Gain, ToNumber(Nth(row,2)))
+    deck3Gain <- Append(deck3Gain, ToNumber(Nth(row,3)))
+    deck4Gain <- Append(deck4Gain, ToNumber(Nth(row,4)))
+  }
+
+  loop(row, lossTable)
+  {
+    deck1Loss <- Append(deck1Loss, ToNumber(Nth(row,1)))
+    deck2Loss <- Append(deck2Loss, ToNumber(Nth(row,2)))
+    deck3Loss <- Append(deck3Loss, ToNumber(Nth(row,3)))
+    deck4Loss <- Append(deck4Loss, ToNumber(Nth(row,4)))
+  }
+
+  ## Optionally shuffle the per-deck sequences (in 10-trial epochs, to
+  ## roughly preserve local reward density, mirroring Bechara's design).
+  if(gParams.shuffledecks)
+  {
+    deck1Gain <- EpochShuffle(deck1Gain)
+    deck1Loss <- EpochShuffle(deck1Loss)
+    deck2Gain <- EpochShuffle(deck2Gain)
+    deck2Loss <- EpochShuffle(deck2Loss)
+    deck3Gain <- EpochShuffle(deck3Gain)
+    deck3Loss <- EpochShuffle(deck3Loss)
+    deck4Gain <- EpochShuffle(deck4Gain)
+    deck4Loss <- EpochShuffle(deck4Loss)
+  }
+
+  #####################################################################
+  ## Give instructions & wait for subject to click mouse / press key.
+  #####################################################################
+
+  if(gLanguage == "he")
+  {
+    gInstructions.direction <- (-1)
+    gFooter.direction <- (-1)
+  }
+
+  SetText(gInstructions, gStrings.inst1)
+  Hide(gFooter)
+  Show(gInstructions)
+  Draw()
+
+  WaitForIt()
+  gInstructions.text <- gStrings.inst2
+  Draw()
+
+  WaitForIt()
+  gInstructions.text <- gStrings.inst3
+  Draw()
+
+  WaitForIt()
+  Hide(gInstructions)
+  Draw()
+
+  #####################################################################
+  ## Set up the basic graphical environment (decks, score, etc).
+  #####################################################################
+
+  colCard <- MakeColor("blue")
+  colGain <- gColBlack
+  colLoss <- gColRed
+
+  gBaseX <- gVideoWidth/2-225
+  gBaseY <- gVideoHeight/2+200
+
+  deck1 <- Rectangle(gBaseX,gBaseY,100,150,colCard,0)
+  deck2 <- Rectangle(gBaseX+150,gBaseY,100,150,colCard,0)
+  deck3 <- Rectangle(gBaseX+300,gBaseY,100,150,colCard,0)
+  deck4 <- Rectangle(gBaseX+450,gBaseY,100,150,colCard,0)
+
+  deck1img <- MakeImage(gDeckImageFile)
+  deck2img <- MakeImage(gDeckImageFile)
+  deck3img <- MakeImage(gDeckImageFile)
+  deck4img <- MakeImage(gDeckImageFile)
+
+  gRewardImage  <- MakeImage(gRewardImageFile)
+  gPenaltyImage <- MakeImage(gPenaltyImageFile)
+
+  deck1g <- Rectangle(gBaseX,gBaseY,100,150,colGain,1)
+  deck2g <- Rectangle(gBaseX+150,gBaseY,100,150,colGain,1)
+  deck3g <- Rectangle(gBaseX+300,gBaseY,100,150,colGain,1)
+  deck4g <- Rectangle(gBaseX+450,gBaseY,100,150,colGain,1)
+
+  deck1l <- Rectangle(gBaseX,gBaseY,100,150,colLoss,1)
+  deck2l <- Rectangle(gBaseX+150,gBaseY,100,150,colLoss,1)
+  deck3l <- Rectangle(gBaseX+300,gBaseY,100,150,colLoss,1)
+  deck4l <- Rectangle(gBaseX+450,gBaseY,100,150,colLoss,1)
+
+  deck1label <- gStrings.deck_a
+  deck2label <- gStrings.deck_b
+  deck3label <- gStrings.deck_c
+  deck4label <- gStrings.deck_d
+
+  deck1text <- MakeLabel(deck1label, gHeaderFont)
+  deck2text <- MakeLabel(deck2label, gHeaderFont)
+  deck3text <- MakeLabel(deck3label, gHeaderFont)
+  deck4text <- MakeLabel(deck4label, gHeaderFont)
+
+  textUI <- [deck1text, deck2text, deck3text, deck4text]
+  deckUI <- [deck1, deck2, deck3, deck4]
+  imgUI  <- [deck1img, deck2img, deck3img, deck4img]
+  gui    <- [deck1g, deck2g, deck3g, deck4g,
+             deck1l, deck2l, deck3l, deck4l]
+
+  loop(i, deckUI)
+  {
+    AddObject(i, gWin)
+  }
+
+  AddObject(deck1img, gWin); Move(deck1img, gBaseX, gBaseY)
+  AddObject(deck2img, gWin); Move(deck2img, gBaseX+150, gBaseY)
+  AddObject(deck3img, gWin); Move(deck3img, gBaseX+300, gBaseY)
+  AddObject(deck4img, gWin); Move(deck4img, gBaseX+450, gBaseY)
+
+  AddObject(gRewardImage, gWin); Move(gRewardImage, gVideoWidth/2-300, gVideoHeight/2-60); Hide(gRewardImage)
+  AddObject(gPenaltyImage, gWin); Move(gPenaltyImage, gVideoWidth/2-300, gVideoHeight/2-60); Hide(gPenaltyImage)
+
+  loop(i, gui)
+  {
+    AddObject(i, gWin)
+    Hide(i)
+  }
+
+  x <- gBaseX
+  loop(i, textUI)
+  {
+    AddObject(i, gWin)
+    Move(i, x, gBaseY-100)
+    x <- x + 150
+  }
+
+  gHeader.text <- gStrings.pick_card
+  Show(gHeader)
+
+  gTotal <- gBorrow
+  if(gDisplayCounter)
+  {
+    gTotalLabel <- MakeLabel(gStrings.winnings + gTotal, gHeaderFont)
+  } else {
+    gTotalLabel <- MakeLabel(gStrings.winnings, gHeaderFont)
+  }
+  AddObject(gTotalLabel, gWin)
+  Move(gTotalLabel, gVideoWidth/2, gVideoHeight/2-310)
+
+  gFooter.text <- gStrings.you_won + CR(1) + gStrings.you_lost
+
+  gui <- Flatten([gui, textUI, deckUI, imgUI, gHeader, gFooter, gTotalLabel])
+  earnings <- MakeEarningsGraph(gTotal)
+  Draw()
+
+  #####################################################################
+  ##  Main experimental trials loop.
+  ##  Each deck keeps its own position pointer into its gain/loss
+  ##  column, so the Nth time deck X is chosen, it uses row N of that
+  ##  deck's schedule (wrapping/recycling if the deck is chosen more
+  ##  times than there are rows).
+  #####################################################################
+
+  deck1Pos <- 1
+  deck2Pos <- 1
+  deck3Pos <- 1
+  deck4Pos <- 1
+
+  trialnum <- 1
+  while(trialnum <= numtrials)
+  {
+    time0 <- GetTime()
+
+    if(gUseMouse)
+    {
+      resp <- WaitForClickOnTarget([deck1,deck2,deck3,deck4],
+                                   [deck1label,deck2label,deck3label,deck4label])
+    } else {
+      Draw()
+      key <- WaitForListKeyPress(["1","2","3","4"])
+      if(key == "1") {
+        resp <- deck1label
+      } elseif(key == "2") {
+        resp <- deck2label
+      } elseif(key == "3") {
+        resp <- deck3label
+      } elseif(key == "4") {
+        resp <- deck4label
+      }
+    }
+
+    time1 <- GetTime()
+    rt <- time1 - time0
+    Draw()
+
+    ## Look up reward/penalty for the chosen deck at its current position,
+    ## wrapping around to the start of its schedule if needed.
+    if(resp == deck1label)
+    {
+      deckpos <- Mod(deck1Pos - 1, Length(deck1Gain)) + 1
+      reward  <- Nth(deck1Gain, deckpos)
+      penalty <- Abs(Nth(deck1Loss, deckpos))
+      deck1Pos <- deck1Pos + 1
+      deckXimg <- deck1img
+    } elseif(resp == deck2label) {
+      deckpos <- Mod(deck2Pos - 1, Length(deck2Gain)) + 1
+      reward  <- Nth(deck2Gain, deckpos)
+      penalty <- Abs(Nth(deck2Loss, deckpos))
+      deck2Pos <- deck2Pos + 1
+      deckXimg <- deck2img
+    } elseif(resp == deck3label) {
+      deckpos <- Mod(deck3Pos - 1, Length(deck3Gain)) + 1
+      reward  <- Nth(deck3Gain, deckpos)
+      penalty <- Abs(Nth(deck3Loss, deckpos))
+      deck3Pos <- deck3Pos + 1
+      deckXimg <- deck3img
+    } elseif(resp == deck4label) {
+      deckpos <- Mod(deck4Pos - 1, Length(deck4Gain)) + 1
+      reward  <- Nth(deck4Gain, deckpos)
+      penalty <- Abs(Nth(deck4Loss, deckpos))
+      deck4Pos <- deck4Pos + 1
+      deckXimg <- deck4img
+    }
+
+    if(penalty == 0)
+    {
+      if(resp == deck1label) { deckX <- deck1g }
+      elseif(resp == deck2label) { deckX <- deck2g }
+      elseif(resp == deck3label) { deckX <- deck3g }
+      elseif(resp == deck4label) { deckX <- deck4g }
+    } else {
+      if(resp == deck1label) { deckX <- deck1l }
+      elseif(resp == deck2label) { deckX <- deck2l }
+      elseif(resp == deck3label) { deckX <- deck3l }
+      elseif(resp == deck4label) { deckX <- deck4l }
+    }
+
+    net <- reward - penalty
+
+    gFooter.text <- gStrings.you_won + reward + "!"
+    SetFont(gFooter, gCorrFont)
+
+    Hide(deckXimg)
+    Show(deckX)
+    Hide(gHeader)
+    Show(gFooter)
+    Show(gRewardImage)
+    Draw()
+
+    if(gParams.playsounds)
+    {
+      PlayBackground(gRewardSound)
+    }
+
+    Wait(gParams.rewarddelay)
+
+    if(penalty > 0)
+    {
+      gFooter.text <- gStrings.you_lost + penalty + "!"
+      SetFont(gFooter, gIncorrFont)
+      Show(gFooter)
+      Show(gPenaltyImage)
+      Draw()
+
+      if(gParams.playsounds)
+      {
+        PlayBackground(gPenaltySound)
+      }
+
+      Wait(gParams.penaltydelay)
+    }
+
+    gTotal <- gTotal + net
+    while(gTotal < 0)
+    {
+      gBorrow <- gBorrow + gLoan
+      gTotal <- gTotal + gLoan
+    }
+    if(gDisplayCounter)
+    {
+      gTotalLabel.text <- gStrings.winnings + gTotal
+    } else {
+      gTotalLabel.text <- gStrings.winnings
+    }
+
+    RemoveComplex(earnings)
+    earnings <- MakeEarningsGraph(gTotal)
+
+    if(trialnum < numtrials)
+    {
+      Hide(deckX)
+      Show(deckXimg)
+      Hide(gFooter)
+      Show(gHeader)
+    }
+    Hide(gRewardImage)
+    Hide(gPenaltyImage)
+    Draw()
+
+    FilePrint_(gFileOut, gSubNum + ",V1," + trialnum + "," + resp + "," + deckpos + "," + reward + "," + penalty)
+    FilePrint(gFileOut, "," + net + "," + gTotal + "," + gBorrow + "," + time1 + "," + rt)
+
+    Wait(gParams.delaybetweentrials)
+
+    trialnum <- trialnum + 1
+  } # End of main while loop.
+
+  Wait(1000)
+
+  loop(i, gui)
+  {
+    Hide(i)
+  }
+
+  FileClose(gFileOut)
+
+  ## Upload data file (works online, no-op on native if no upload.json present)
+  datafile <- "data/" + gSubNum + "/cigtlog-" + gSubNum + ".csv"
+  UploadFile(gSubNum, datafile)
+
+  feedback <- ""
+  if(gTotal > (gBorrow+numtrials*15))
+  {
+    feedback <- gStrings.congratulations + " "
+  }
+
+  feedback <- feedback + gStrings.game_over + (gTotal-gBorrow) + "."
+  feedback <- feedback + CR(2) + gStrings.thank_you
+
+  SetText(gInstructions, feedback)
+  Show(gInstructions)
+  RemoveComplex(earnings)
+  Draw()
+  WaitForKeyPress("<esc>")
+
+} # End of function Start().
+
+#####################################################################
+## Loads the translation strings for this task.
+#####################################################################
+
+define GetStrings(lang)
+{
+  gStrings <- GetTranslations("cigt", lang)
+  return gStrings
+} # End of function GetStrings().
+
+#####################################################################
+##  Standard initializer: sets up window, fonts, and common objects.
+#####################################################################
+
+define Initialize()
+{
+  gWin <- MakeWindow("white")
+
+  bg  <- MakeColor("white")
+  bg1 <- MakeColor("white")
+  gFG <- MakeColor("black")
+
+  gColGreen <- MakeColor("forestgreen")
+  gColRed   <- MakeColor("red")
+  gColBlack <- MakeColor("black")
+
+  gStimFont         <- MakeFont(gPEBLBaseFontMono, 0, 36, gfg, bg1, 0)
+  gCorrFont         <- MakeFont(gPEBLBaseFontMono, 0, 36, gcolGreen, bg1, 0)
+  gIncorrFont       <- MakeFont(gPEBLBaseFontMono, 0, 36, gcolRed, bg1, 0)
+  gInstructionsFont <- MakeFont(gPEBLBaseFont, 0, 22, gfg, bg, 0)
+  gHeaderFont       <- MakeFont(gPEBLBaseFont, 0, 28, gfg, bg, 0)
+  gGraphFont        <- MakeFont(gPEBLBaseFont, 0, 15, gfg, bg, 0)
+
+  gInstructions <- MakeTextBox("", gInstructionsFont, 600, 500)
+
+  if(gLanguage=="he")
+  {
+    gInstructions.direction <- (-1)
+  }
+
+  AddObject(gInstructions, gWin)
+  Move(gInstructions, gVideoWidth/2-300, gVideoHeight/2-200)
+  Hide(gInstructions)
+
+  gHeader <- MakeLabel("", gHeaderFont)
+  AddObject(gHeader, gWin)
+  Move(gHeader, gVideoWidth/2, gVideoHeight/2+50)
+  Hide(gHeader)
+
+  gFooter <- MakeLabel("", gStimFont)
+  AddObject(gFooter, gWin)
+  Move(gFooter, gVideoWidth/2, gVideoHeight/2-60)
+
+} # End of function Initialize().
+
+#####################################################################
+## Shuffles a list in epochs of 10 (requires length to be a multiple
+## of 10; the last partial epoch, if any, is shuffled on its own).
+#####################################################################
+
+define EpochShuffle(list)
+{
+  n <- Length(list)
+  order <- []
+  start <- 1
+  while(start <= n)
+  {
+    stop <- Min([start+9, n])
+    order <- Append(order, Shuffle(Sequence(start,stop,1)))
+    start <- start + 10
+  }
+  order <- Flatten(order)
+  return SortBy(list, order)
+} # End of function EpochShuffle().
+
+#####################################################################
+## Plots the earnings/borrowing bar graph.
+#####################################################################
+
+define MakeEarningsGraph(earnings)
+{
+  scale <- 14
+  height <- 20
+  width  <- earnings / scale
+  xcenter <- gVideoWidth/2 - 280
+  ycenter <- gVideoHeight/2 - 240
+
+  if(earnings < 0)
+  {
+    cashBarCol <- gColRed
+  } else {
+    cashBarCol <- gColGreen
+  }
+  borrowBarCol <- gColRed
+
+  yvals <- [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000]
+
+  cashBar   <- Rectangle(xcenter+width/2, ycenter, width, height, cashBarCol, 1)
+  borrowBar <- Rectangle(xcenter+(gBorrow/scale)/2, ycenter+height+1,
+                                  gBorrow/scale, height, borrowBarCol, 1)
+  outline   <- Rectangle(gVideoWidth/2, ycenter+2,
+                         gVideoWidth-10, 75, MakeColor("grey"), 0)
+
+  AddObject(cashBar, gWin)
+  AddObject(borrowBar, gWin)
+  AddObject(outline, gWin)
+
+  cashLabel <- MakeLabel(gStrings.cash_label, gGraphFont)
+  AddObject(cashLabel, gWin)
+  Move(cashLabel, xcenter-90, ycenter)
+  Show(cashLabel)
+
+  borrowLabel <- MakeLabel(gStrings.borrowed_label, gGraphFont)
+  AddObject(borrowLabel, gWin)
+  Move(borrowLabel, xcenter-73, ycenter+height+1)
+  Show(borrowLabel)
+
+  composite <- [outline, cashBar, borrowBar, cashLabel, borrowLabel]
+
+  loop(i, yvals)
+  {
+    yy <- MakeLabel(i + "", gGraphFont)
+    AddObject(yy, gWin)
+    Move(yy, xcenter + (i/scale), ycenter - 20)
+    Show(yy)
+    composite <- Append(composite, yy)
+  }
+  return composite
+} # End of function MakeEarningsGraph().
+
+#####################################################################
+## Removes a composite list of graphical objects.
+#####################################################################
+
+define RemoveComplex(x)
+{
+  loop(i,x)
+  {
+    RemoveObject(i, gWin)
+  }
+} # End of function RemoveComplex().
+
+#####################################################################
+## Monitors for mouse clicks or key presses (instruction screens).
+#####################################################################
+
+define WaitForIt()
+{
+  if(gUseMouse)
+  {
+    Draw()
+    WaitForDownClick()
+  } else {
+    WaitForAnyKeyPress()
+  }
+} # End of function WaitForIt().
