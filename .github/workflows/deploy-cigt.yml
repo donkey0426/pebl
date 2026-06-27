@@ -67,7 +67,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: libs/SDL2_gfx-1.0.4/build-em
-          key: sdl2gfx-em-${{ runner.os }}-${{ env.EMSDK_VERSION }}-v1
+          key: sdl2gfx-em-${{ runner.os }}-${{ env.EMSDK_VERSION }}-v2
 
       - name: Build SDL2_gfx for Emscripten
         if: steps.cache-sdl2gfx.outputs.cache-hit != 'true'
@@ -76,8 +76,11 @@ jobs:
           cd libs/SDL2_gfx-1.0.4
           mkdir -p build-em
           cd build-em
-          emconfigure ../configure
-          emmake make
+          emconfigure ../configure --host=wasm32-unknown-emscripten \
+            SDL2_CONFIG="$(which sdl2-config || echo emscripten-sdl2-config)" \
+            CFLAGS="-sUSE_SDL=2" \
+            CPPFLAGS="-sUSE_SDL=2"
+          emmake make CFLAGS="-sUSE_SDL=2" CPPFLAGS="-sUSE_SDL=2"
 
       - name: Build cIGT Emscripten target
         run: |
