@@ -63,8 +63,51 @@ CLXX = clang++
 main:
 	$(MAKE) OBJ_DIR=obj-native CC=$(CL) CXX=$(CLXX) main-real
 
-em-opt:
-	$(MAKE) OBJ_DIR=obj-em CC=$(EMCC) CXX=$(EMCXX) em-opt-real
+em-cigt:
+	$(MAKE) OBJ_DIR=obj-em CC=$(EMCC) CXX=$(EMCXX) em-cigt-real
+
+em-cigt-real: CC=$(EMCC)
+em-cigt-real: CXX=$(EMCXX)
+em-cigt-real: USE_LSL = 0
+em-cigt-real: CXXFLAGS = $(CXXFLAGSX) $(CXXFLAGS_EMSCRIPTEN) -DPEBL_ITERATIVE_EVAL -UPEBL_USE_LSL
+em-cigt-real: SDL_FLAGS = $(EM_SDL_FLAGS)
+em-cigt-real:  $(DIRS) $(EMMAIN_OBJ) $(BASE_DIR)/lex.yy.o $(UTIL_DIR)/re.o $(EMMAIN_INC)
+	$(CXX) $(CXXFLAGS) \
+	-Oz \
+	-s WASM=1 \
+	-s USE_SDL=2 \
+	-s USE_SDL_NET=2 \
+	-s USE_SDL_TTF=2 \
+	-s USE_SDL_IMAGE=2 \
+	-s SDL2_IMAGE_FORMATS='["png","jpg","gif","bmp"]' \
+	-s USE_LIBJPEG=1 \
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s INITIAL_MEMORY=67108864 \
+	-s MAXIMUM_MEMORY=4294967296 \
+	-s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","FS","callMain"]' \
+	-s MODULARIZE=1 \
+	-s EXPORT_NAME="createPEBLModule" \
+	-s FETCH=1 \
+	-s FORCE_FILESYSTEM=1 \
+	-s ASSERTIONS=1 \
+	-s ASYNCIFY=1 \
+	-s ASYNCIFY_STACK_SIZE=524288 \
+	-s ASYNCIFY_IMPORTS='["emscripten_sleep"]' \
+	-sLZ4=1 \
+	--pre-js emscripten/load-idbfs.js \
+	-lidbfs.js \
+	-DPEBL_EMSCRIPTEN \
+	-o $(BIN_DIR)/cigt.html \
+	$(OBJ_DIR)/$(BASE_DIR)/lex.yy.o \
+	$(OBJ_DIR)/$(UTIL_DIR)/re.o \
+	$(patsubst %.o, $(OBJ_DIR)/%.o, $(EMMAIN_OBJ)) \
+	libs/SDL2_gfx-1.0.4/build-em/SDL2_gfxPrimitives.o \
+	--shell-file emscripten/shell_cigt.html \
+	--preload-file emscripten/pebl-lib@/usr/local/share/pebl2/pebl-lib \
+	--preload-file emscripten/media/@/usr/local/share/pebl2/media \
+	--preload-file battery/cigt@/usr/local/share/pebl2/battery/cigt
+
+.PHONY: em-cigt em-cigt-real
 
 em-test:
 	$(MAKE) OBJ_DIR=obj-em CC=$(EMCC) CXX=$(EMCXX) em-test-real
