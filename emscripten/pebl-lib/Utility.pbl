@@ -1924,6 +1924,10 @@ define GetTranslations(testname, lang, basedir:"translations")
   ## All translation files use lowercase 2-letter codes (en, es, tr, etc.)
   lang <- Lowercase(lang)
 
+  ## Initialize ret so it is always defined, even if lang is empty
+  ## and GetSystemLocale() also returns empty (e.g., in headless environments).
+  ret <- ""
+
   ## Tier 1: Try explicit language if provided
   if(lang != "")
   {
