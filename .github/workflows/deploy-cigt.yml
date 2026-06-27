@@ -95,11 +95,42 @@ jobs:
       - name: Assemble Pages site
         run: |
           mkdir -p site
-          cp bin/pebl2.html site/index.html
           cp bin/pebl2.js site/pebl2.js
           cp bin/pebl2.wasm site/pebl2.wasm
           if [ -f bin/pebl2.data ]; then cp bin/pebl2.data site/pebl2.data; fi
-          sed -i "s|instance.callMain();|instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', 'participant1']);|g" site/index.html
+          cat > site/index.html << 'HTMLEOF'
+          <!doctype html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>cIGT Task</title>
+            <style>
+              body { margin: 0; background: #000; }
+              canvas { display: block; margin: 0 auto; background: #000; }
+              #status { color: white; text-align: center; font-family: sans-serif; padding: 10px; }
+            </style>
+          </head>
+          <body>
+            <div id="status">Loading...</div>
+            <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+            <script src="pebl2.js"></script>
+            <script>
+              var Module = {
+                noInitialRun: true,
+                canvas: document.getElementById('canvas'),
+                print: function(t) { console.log(t); },
+                printErr: function(t) { console.error(t); },
+                setStatus: function(t) { document.getElementById('status').innerHTML = t; }
+              };
+              createPEBLModule(Module).then(function(instance) {
+                document.getElementById('status').style.display = 'none';
+                var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random()*900000+100000);
+                instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant]);
+              });
+            </script>
+          </body>
+          </html>
+          HTMLEOF
           ls -la site/
 
       - name: Configure GitHub Pages
