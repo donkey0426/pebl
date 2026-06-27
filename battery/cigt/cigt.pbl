@@ -51,6 +51,7 @@ define Start(lPar)
 
   Initialize()
 
+  SetWorkingDirectory("/usr/local/share/pebl2/battery/cigt")
   gStrings <- GetStrings(gLanguage)
 
   gDeckImageFile    <- "media/deck.png"
