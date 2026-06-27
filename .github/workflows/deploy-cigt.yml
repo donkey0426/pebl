@@ -57,17 +57,17 @@ jobs:
           ./emsdk install ${{ env.EMSDK_VERSION }}
           ./emsdk activate ${{ env.EMSDK_VERSION }}
 
-      - name: Activate Emscripten SDK (for cache-hit runs too)
+      - name: Activate Emscripten SDK
         run: |
           cd libs/emsdk
           ./emsdk activate ${{ env.EMSDK_VERSION }}
 
-      - name: Cache SDL2_gfx emscripten build artifacts
+      - name: Cache SDL2_gfx emscripten build
         id: cache-sdl2gfx
         uses: actions/cache@v4
         with:
           path: libs/SDL2_gfx-1.0.4/build-em
-          key: sdl2gfx-em-${{ runner.os }}-${{ env.EMSDK_VERSION }}-v3
+          key: sdl2gfx-em-${{ runner.os }}-${{ env.EMSDK_VERSION }}-v4
 
       - name: Build SDL2_gfx for Emscripten
         if: steps.cache-sdl2gfx.outputs.cache-hit != 'true'
@@ -77,19 +77,28 @@ jobs:
           mkdir -p build-em
           emcc -O2 -sUSE_SDL=2 -c SDL2_gfxPrimitives.c -o build-em/SDL2_gfxPrimitives.o
 
-      - name: Build cIGT Emscripten target
+      - name: Build PEBL for Emscripten
         run: |
           source libs/emsdk/emsdk_env.sh
-          emcc --version
-          make em-cigt -j "$(nproc)"
+          make em-opt -j "$(nproc)"
+
+      - name: Patch shell HTML for cIGT
+        run: |
+          cp bin/pebl2.html bin/cigt.html
+          cp bin/pebl2.js bin/cigt.js
+          cp bin/pebl2.wasm bin/cigt.wasm
+          if [ -f bin/pebl2.data ]; then cp bin/pebl2.data bin/cigt.data; fi
+          sed -i 's/createPEBLModule/createPEBLModule/g' bin/cigt.html
+          cat emscripten/shell_cigt.html > /tmp/shell_cigt_patch.html
 
       - name: Assemble Pages site
         run: |
           mkdir -p site
-          cp bin/cigt.html site/index.html
-          cp bin/cigt.js site/
-          cp bin/cigt.wasm site/
-          if [ -f bin/cigt.data ]; then cp bin/cigt.data site/; fi
+          cp bin/pebl2.html site/index.html
+          cp bin/pebl2.js site/pebl2.js
+          cp bin/pebl2.wasm site/pebl2.wasm
+          if [ -f bin/pebl2.data ]; then cp bin/pebl2.data site/pebl2.data; fi
+          cp emscripten/shell_cigt.html site/cigt_launcher.html
           ls -la site/
 
       - name: Configure GitHub Pages
