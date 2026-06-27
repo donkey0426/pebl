@@ -177,6 +177,8 @@ jobs:
           echo "All source files compiled successfully"
 
       - name: Link final WASM binary
+        env:
+          PRELOAD_CIGT: "battery/cigt@/usr/local/share/pebl2/battery/cigt"
         run: |
           source libs/emsdk/emsdk_env.sh
           em++ -Oz \
@@ -275,9 +277,7 @@ jobs:
             --shell-file emscripten/shell_PEBL_debug.html \
             --preload-file emscripten/pebl-lib@/usr/local/share/pebl2/pebl-lib \
             --preload-file emscripten/media/@/usr/local/share/pebl2/media \
-            --preload-file emscripten/pebl-lib@/usr/local/share/pebl2/pebl-lib \
-            --preload-file emscripten/media/@/usr/local/share/pebl2/media \
-            --preload-file 'battery/cigt@/usr/local/share/pebl2/battery/cigt'
+            --preload-file "$PRELOAD_CIGT"
 
       - name: Assemble Pages site
         run: |
