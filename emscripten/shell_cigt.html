@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cIGT Task</title>
+    <style>
+      html, body { margin: 0; padding: 0; background-color: #111; }
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; width: 80%; }
+      div.emscripten { text-align: center; }
+      div.emscripten_border { border: 0; }
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; background-color: black; display: block; margin: 0 auto; }
+
+      #loading-screen {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: #111;
+        color: #eee;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        z-index: 1000;
+      }
+      #loading-screen.hidden { display: none; }
+
+      .spinner {
+        height: 50px;
+        width: 50px;
+        margin: 0 auto 20px auto;
+        animation: rotation 0.8s linear infinite;
+        border-left: 10px solid rgb(0,150,240);
+        border-right: 10px solid rgb(0,150,240);
+        border-bottom: 10px solid rgb(0,150,240);
+        border-top: 10px solid rgb(100,0,200);
+        border-radius: 100%;
+      }
+      @keyframes rotation {
+        from {transform: rotate(0deg);}
+        to {transform: rotate(360deg);}
+      }
+
+      #debug-output {
+        position: fixed;
+        bottom: 0; left: 0; width: 100%;
+        max-height: 150px;
+        font-family: monospace;
+        font-size: 11px;
+        background: rgba(0,0,0,0.85);
+        color: #0f0;
+        overflow-y: auto;
+        padding: 4px 8px;
+        box-sizing: border-box;
+        display: none;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div class="spinner"></div>
+      <div id="status">Loading task...</div>
+      <progress value="0" max="100" id="progress" hidden></progress>
+    </div>
+
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    </div>
+
+    <textarea id="debug-output" rows="8"></textarea>
+
+    <script type='text/javascript'>
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+      var loadingScreen = document.getElementById('loading-screen');
+
+      // Append ?debug=1 to the URL to show the PEBL console log on-screen
+      // (useful for diagnosing issues without opening browser devtools).
+      var showDebug = new URLSearchParams(window.location.search).get('debug') === '1';
+      if (showDebug) {
+        document.getElementById('debug-output').style.display = 'block';
+      }
+
+      var Module = {
+        noInitialRun: true,  // We call main() ourselves once setup below is done
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          var element = document.getElementById('debug-output');
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            console.log(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight;
+            }
+          };
+        })(),
+        printErr: function(text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          console.error(text);
+          var element = document.getElementById('debug-output');
+          if (element) {
+            element.value += "[err] " + text + "\n";
+            element.scrollTop = element.scrollHeight;
+          }
+        },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          canvas.addEventListener("webglcontextlost", function(e) {
+            alert('Display context was lost. Please reload the page.');
+            e.preventDefault();
+          }, false);
+          return canvas;
+        })(),
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2]) * 100;
+            progressElement.max = parseInt(m[4]) * 100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'Starting task...');
+        }
+      };
+
+      Module.setStatus('Downloading...');
+      window.onerror = function() {
+        Module.setStatus('An error occurred - see browser console (F12) for details.');
+      };
+    </script>
+    {{{ SCRIPT }}}
+    <script type="text/javascript">
+      // Get or create a participant id. Priority: ?participant=XXXX in the
+      // URL, otherwise a randomly generated id persisted in localStorage so
+      // a reloaded page reuses the same id within the same browser.
+      function getParticipantId() {
+        var params = new URLSearchParams(window.location.search);
+        var fromUrl = params.get('participant');
+        if (fromUrl) return fromUrl;
+
+        var stored = localStorage.getItem('cigt_participant_id');
+        if (stored) return stored;
+
+        var generated = 'P' + Math.floor(100000 + Math.random() * 900000);
+        localStorage.setItem('cigt_participant_id', generated);
+        return generated;
+      }
+
+      function getLanguage() {
+        var params = new URLSearchParams(window.location.search);
+        return params.get('lang') || '';
+      }
+
+      window.addEventListener('load', function() {
+        var participant = getParticipantId();
+        var lang = getLanguage();
+
+        createPEBLModule(Module).then(function(instance) {
+          window.PEBLModule = instance;
+
+          var scriptPath = '/usr/local/share/pebl2/battery/cigt/cigt.pbl';
+          var args = [scriptPath, '-s', participant];
+          if (lang) {
+            args.push('--language', lang);
+          }
+
+          console.log('Launching cIGT with args:', args);
+
+          loadingScreen.classList.add('hidden');
+
+          instance.callMain(args);
+        }).catch(function(error) {
+          console.error('Failed to load PEBL module:', error);
+          statusElement.innerHTML = 'Failed to load. Please check your internet connection and reload the page.';
+        });
+      });
+    </script>
+  </body>
+</html>
