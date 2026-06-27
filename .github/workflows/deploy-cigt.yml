@@ -99,7 +99,7 @@ jobs:
           cp bin/pebl2.js site/pebl2.js
           cp bin/pebl2.wasm site/pebl2.wasm
           if [ -f bin/pebl2.data ]; then cp bin/pebl2.data site/pebl2.data; fi
-          cp emscripten/shell_cigt.html site/cigt_launcher.html
+          sed -i "s|instance.callMain();|instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', 'participant1']);|g" site/index.html
           ls -la site/
 
       - name: Configure GitHub Pages
