@@ -190,29 +190,83 @@ jobs:
           <html>
           <head>
             <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
             <title>cIGT Task</title>
             <style>
-              body { margin: 0; background: #000; }
-              canvas { display: block; margin: 0 auto; background: #000; }
-              #status { color: white; text-align: center; font-family: sans-serif; padding: 10px; }
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              html, body {
+                width: 100%; height: 100%;
+                background: #000;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              #canvas-container {
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              canvas {
+                display: block;
+                background: #fff;
+                max-width: 100vw;
+                max-height: 100vh;
+                width: auto !important;
+                height: auto !important;
+                object-fit: contain;
+              }
+              #status {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                font-family: sans-serif;
+                font-size: 18px;
+                text-align: center;
+              }
             </style>
           </head>
           <body>
             <div id="status">Loading...</div>
-            <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+            <div id="canvas-container">
+              <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+            </div>
             <script src="pebl2.js"></script>
             <script>
+              var canvas = document.getElementById('canvas');
+              var container = document.getElementById('canvas-container');
+
+              function resizeCanvas() {
+                var gameW = 1280, gameH = 720;
+                var winW = window.innerWidth;
+                var winH = window.innerHeight;
+                var scale = Math.min(winW / gameW, winH / gameH);
+                canvas.style.width = (gameW * scale) + 'px';
+                canvas.style.height = (gameH * scale) + 'px';
+              }
+              window.addEventListener('resize', resizeCanvas);
+              resizeCanvas();
+
               var Module = {
                 noInitialRun: true,
-                canvas: document.getElementById('canvas'),
+                canvas: canvas,
                 print: function(t) { console.log(t); },
                 printErr: function(t) { console.error(t); },
-                setStatus: function(t) { document.getElementById('status').innerHTML = t; }
+                setStatus: function(t) {
+                  var s = document.getElementById('status');
+                  if (s) s.innerHTML = t || '';
+                  if (!t) { s.style.display = 'none'; }
+                }
               };
               createPEBLModule(Module).then(function(instance) {
                 document.getElementById('status').style.display = 'none';
                 var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random()*900000+100000);
-                instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant]);
+                var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
+                instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant, '--language', lang]);
               });
             </script>
           </body>
