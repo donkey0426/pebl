@@ -537,7 +537,7 @@ em-opt-real:  $(DIRS) $(EMMAIN_OBJ) $(BASE_DIR)/lex.yy.o $(UTIL_DIR)/re.o $(EMMA
 	-s FORCE_FILESYSTEM=1 \
 	-s ASSERTIONS=1 \
 	-s ASYNCIFY=1 \
-	-s ASYNCIFY_STACK_SIZE=524288 \
+	-s ASYNCIFY_STACK_SIZE=2097152 \
 	-s ASYNCIFY_IMPORTS='["emscripten_sleep"]' \
 	-sLZ4=1 \
 	--pre-js emscripten/load-idbfs.js \
