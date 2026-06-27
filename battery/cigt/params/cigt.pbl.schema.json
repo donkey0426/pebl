@@ -1,0 +1,77 @@
+{
+  "test": "cigt",
+  "version": "1.0",
+  "description": "Computerized Iowa Gambling Task (cIGT) using an externally supplied, trial-by-trial ABCD gain/loss schedule instead of the fixed 40-card Bechara deck.",
+  "parameters": [
+    {
+      "name": "gainfile",
+      "type": "string",
+      "default": "cIGT-gain-ABCD.txt",
+      "description": "Tab-separated file giving each deck's own gain schedule. One row per card in that deck's sequence (e.g., 60 rows = 60 cards per deck), 4 columns (A,B,C,D)."
+    },
+    {
+      "name": "lossfile",
+      "type": "string",
+      "default": "cIGT-loss-ABCD.txt",
+      "description": "Tab-separated file giving each deck's own loss schedule (0 or negative), aligned row-for-row with gainfile."
+    },
+    {
+      "name": "numtrials",
+      "type": "integer",
+      "default": 100,
+      "description": "Total number of card selections (trials) the participant makes across the whole task. This is independent of how many cards/rows are defined for each individual deck (see gainfile/lossfile) -- e.g., 100 total trials drawn from 4 decks that each have a 60-row schedule."
+    },
+    {
+      "name": "UseMouse",
+      "type": "boolean",
+      "default": 1,
+      "description": "Should we use the mouse (use=1; don't use=0 for the keyboard)",
+      "options": [0, 1]
+    },
+    {
+      "name": "shuffledecks",
+      "type": "boolean",
+      "default": 0,
+      "description": "Whether each deck's own gain/loss sequence should be shuffled in epochs of 10 before the task starts. Default is off (sequence is presented in the order given in the data files).",
+      "options": [0, 1]
+    },
+    {
+      "name": "startvalue",
+      "type": "integer",
+      "default": 2000,
+      "description": "Starting money / initial loan"
+    },
+    {
+      "name": "rewarddelay",
+      "type": "integer",
+      "default": 1500,
+      "description": "How long (ms) the reward feedback is shown before any penalty feedback is shown"
+    },
+    {
+      "name": "penaltydelay",
+      "type": "integer",
+      "default": 1500,
+      "description": "How long (ms) the penalty feedback is shown"
+    },
+    {
+      "name": "DelayBetweenTrials",
+      "type": "integer",
+      "default": 500,
+      "description": "How long (ms) to pause between trials"
+    },
+    {
+      "name": "playsounds",
+      "type": "boolean",
+      "default": 1,
+      "description": "Should win/loss sounds be played?",
+      "options": [0, 1]
+    },
+    {
+      "name": "displaycounter",
+      "type": "boolean",
+      "default": 0,
+      "description": "If 1, show the running numeric total next to 'Winnings:'. If 0, only the bar graph is shown.",
+      "options": [0, 1]
+    }
+  ]
+}
