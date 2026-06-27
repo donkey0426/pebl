@@ -1,5 +1,7 @@
-#!/bin/bash
+##!/bin/bash
 set -e
+echo "=== Contents of battery/cigt/translations/ ==="
+ls -la battery/cigt/translations/
 source libs/emsdk/emsdk_env.sh
 
 em++ -Oz \
