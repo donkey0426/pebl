@@ -80,7 +80,8 @@ jobs:
       - name: Build PEBL for Emscripten
         run: |
           source libs/emsdk/emsdk_env.sh
-          make em-opt -j "$(nproc)" EXPORTED_RUNTIME_METHODS='["ccall","cwrap","FS","callMain","requestFullscreen"]' ASYNCIFY_STACK_SIZE=1048576
+          make em-opt -j "$(nproc)" EXPORTED_RUNTIME_METHODS='["ccall","cwrap","FS","callMain","requestFullscreen"]' 
+          ASYNCIFY_STACK_SIZE=1048576
 
       - name: Patch shell HTML for cIGT
         run: |
