@@ -276,9 +276,9 @@ jobs:
             obj-em/src/platforms/sdl/PlatformAudioIn.o \
             libs/SDL2_gfx-1.0.4/build-em/SDL2_gfxPrimitives.o \
             --shell-file emscripten/shell_PEBL_debug.html \
-            --preload-file emscripten/pebl-lib@/usr/local/share/pebl2/pebl-lib \
-            --preload-file emscripten/media/@/usr/local/share/pebl2/media \
-            --preload-file ${CIGT_DIR}@${CIGT_MOUNT}
+            "--preload-file=emscripten/pebl-lib@/usr/local/share/pebl2/pebl-lib" \
+            "--preload-file=emscripten/media/@/usr/local/share/pebl2/media" \
+            "--preload-file=battery/cigt@/usr/local/share/pebl2/battery/cigt"
 
       - name: Assemble Pages site
         run: |
