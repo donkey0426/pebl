@@ -470,12 +470,13 @@ define Initialize()
   gColRed   <- MakeColor("red")
   gColBlack <- MakeColor("black")
 
-  gStimFont         <- MakeFont(gPEBLBaseFontMono, 0, 36, gfg, bg1, 0)
-  gCorrFont         <- MakeFont(gPEBLBaseFontMono, 0, 36, gcolGreen, bg1, 0)
-  gIncorrFont       <- MakeFont(gPEBLBaseFontMono, 0, 36, gcolRed, bg1, 0)
-  gInstructionsFont <- MakeFont(gPEBLBaseFont, 0, 22, gfg, bg, 0)
-  gHeaderFont       <- MakeFont(gPEBLBaseFont, 0, 28, gfg, bg, 0)
-  gGraphFont        <- MakeFont(gPEBLBaseFont, 0, 15, gfg, bg, 0)
+  gCJKFont          <- "NotoSansCJK-cigt-subset.otf"
+  gStimFont         <- MakeFont(gCJKFont, 0, 36, gfg, bg1, 0)
+  gCorrFont         <- MakeFont(gCJKFont, 0, 36, gcolGreen, bg1, 0)
+  gIncorrFont       <- MakeFont(gCJKFont, 0, 36, gcolRed, bg1, 0)
+  gInstructionsFont <- MakeFont(gCJKFont, 0, 22, gfg, bg, 0)
+  gHeaderFont       <- MakeFont(gCJKFont, 0, 28, gfg, bg, 0)
+  gGraphFont        <- MakeFont(gCJKFont, 0, 15, gfg, bg, 0)
 
   gInstructions <- MakeTextBox("", gInstructionsFont, 600, 500)
 
