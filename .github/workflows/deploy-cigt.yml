@@ -1,0 +1,114 @@
+name: Build and Deploy cIGT to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+env:
+  EMSDK_VERSION: latest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install system build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            bison \
+            flex \
+            wget \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-ttf-dev \
+            libsdl2-net-dev \
+            libsdl2-mixer-dev \
+            libsdl2-gfx-dev \
+            libcurl4-openssl-dev
+
+      - name: Cache Emscripten SDK
+        id: cache-emsdk
+        uses: actions/cache@v4
+        with:
+          path: libs/emsdk
+          key: emsdk-${{ runner.os }}-${{ env.EMSDK_VERSION }}
+
+      - name: Install Emscripten SDK
+        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p libs
+          git clone https://github.com/emscripten-core/emsdk.git libs/emsdk
+          cd libs/emsdk
+          ./emsdk install ${{ env.EMSDK_VERSION }}
+          ./emsdk activate ${{ env.EMSDK_VERSION }}
+
+      - name: Activate Emscripten SDK (for cache-hit runs too)
+        run: |
+          cd libs/emsdk
+          ./emsdk activate ${{ env.EMSDK_VERSION }}
+
+      - name: Cache SDL2_gfx emscripten build artifacts
+        id: cache-sdl2gfx
+        uses: actions/cache@v4
+        with:
+          path: libs/SDL2_gfx-1.0.4/build-em
+          key: sdl2gfx-em-${{ runner.os }}-${{ env.EMSDK_VERSION }}-v1
+
+      - name: Build SDL2_gfx for Emscripten
+        if: steps.cache-sdl2gfx.outputs.cache-hit != 'true'
+        run: |
+          source libs/emsdk/emsdk_env.sh
+          cd libs/SDL2_gfx-1.0.4
+          mkdir -p build-em
+          cd build-em
+          emconfigure ../configure
+          emmake make
+
+      - name: Build cIGT Emscripten target
+        run: |
+          source libs/emsdk/emsdk_env.sh
+          emcc --version
+          make em-cigt -j "$(nproc)"
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p site
+          cp bin/cigt.html site/index.html
+          cp bin/cigt.js site/
+          cp bin/cigt.wasm site/
+          if [ -f bin/cigt.data ]; then cp bin/cigt.data site/; fi
+          ls -la site/
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
