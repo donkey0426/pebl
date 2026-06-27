@@ -275,7 +275,9 @@ jobs:
             --shell-file emscripten/shell_PEBL_debug.html \
             --preload-file emscripten/pebl-lib@/usr/local/share/pebl2/pebl-lib \
             --preload-file emscripten/media/@/usr/local/share/pebl2/media \
-            --preload-file battery/cigt@/usr/local/share/pebl2/battery/cigt
+            --preload-file emscripten/pebl-lib@/usr/local/share/pebl2/pebl-lib \
+            --preload-file emscripten/media/@/usr/local/share/pebl2/media \
+            --preload-file 'battery/cigt@/usr/local/share/pebl2/battery/cigt'
 
       - name: Assemble Pages site
         run: |
