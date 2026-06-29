@@ -58,8 +58,8 @@ define Start(lPar)
   gRewardImageFile  <- "media/Smiley_Face.jpg"
   gPenaltyImageFile <- "media/Sad_Face.jpg"
 
-  gRewardSound  <- LoadSound("media/Sound_Win.ogg")
-  gPenaltySound <- LoadSound("media/Sound_Lose.ogg")
+  gRewardSound  <- LoadSound("media/Sound_Win.wav")
+  gPenaltySound <- LoadSound("media/Sound_Lose.wav")
 
   if(gSubNum + "" == "0")
   {
