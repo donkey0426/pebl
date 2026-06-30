@@ -76,7 +76,7 @@ jobs:
                    obj-em/src/libs obj-em/src/devices obj-em/src/platforms/sdl \
                    obj-em/src/utility bin
 
-          FLAGS="-O2 -DPEBL_EMSCRIPTEN -DPEBL_HTTP -DHTTP_LIB=3 \
+          FLAGS="-O2 -DPEBL_EMSCRIPTEN -DPEBL_HTTP -DHTTP_LIB=3 -DPEBL_MIXER \
             -DPREFIX=/usr/local/ -DEXECNAME=pebl2 -DPEBLNAME=pebl2 \
             -DPEBLDIRNAME=pebl2 -DPEBL_VERSION=\"2.4\" \
             -DPEBL_ITERATIVE_EVAL -UPEBL_USE_LSL \
