@@ -185,6 +185,7 @@ jobs:
           cp bin/pebl2.js site/pebl2.js
           cp bin/pebl2.wasm site/pebl2.wasm
           if [ -f bin/pebl2.data ]; then cp bin/pebl2.data site/pebl2.data; fi
+          cp questionnaire.html site/questionnaire.html
           cat > site/index.html << 'HTMLEOF'
           <!doctype html>
           <html>
