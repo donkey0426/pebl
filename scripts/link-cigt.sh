@@ -9,6 +9,7 @@ em++ -Oz \
   -s USE_SDL=2 -s USE_SDL_NET=2 -s USE_SDL_TTF=2 \
   -s USE_SDL_IMAGE=2 \
   -s 'SDL2_IMAGE_FORMATS=["png","jpg","gif","bmp"]' \
+  -s USE_SDL_MIXER=2 \
   -s USE_LIBJPEG=1 \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s INITIAL_MEMORY=67108864 \
