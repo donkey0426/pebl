@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explicit Memory in IGT</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      padding: 30px 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 40px 36px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: bold;
+      text-decoration: underline;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 28px;
+    }
+    .question {
+      margin-bottom: 28px;
+    }
+    .question-text {
+      font-size: 16px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .question-text .en {
+      font-size: 13px;
+      color: #666;
+      display: block;
+      margin-top: 4px;
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .option label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 8px 16px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .option input[type="radio"] {
+      accent-color: #1a73e8;
+      width: 16px;
+      height: 16px;
+    }
+    .option input[type="radio"]:checked + span {
+      font-weight: bold;
+      color: #1a73e8;
+    }
+    .option label:has(input:checked) {
+      border-color: #1a73e8;
+      background: #e8f0fe;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 4px 0 28px;
+    }
+    .error-msg {
+      color: #d32f2f;
+      font-size: 13px;
+      margin-top: 6px;
+      display: none;
+    }
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 17px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .submit-btn:hover { background: #1557b0; }
+    .thank-you {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .thank-you h2 { font-size: 24px; margin-bottom: 12px; color: #1a73e8; }
+    .thank-you p { font-size: 16px; color: #444; line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div id="form-section">
+    <h1>Explicit Memory in IGT</h1>
+    <p class="subtitle">請根據您在遊戲中的經歷回答以下問題，沒有對錯之分。<br>
+    <em>Please answer the following questions based on your experience in the game. There are no right or wrong answers.</em></p>
+
+    <form id="qform" novalidate>
+
+      <div class="question" id="q1-block">
+        <div class="question-text">
+          1. 經歷整個遊戲過程後，累積起來哪一疊牌讓你贏最多錢？
+          <span class="en">After experiencing the entire game, which deck accumulated the most winnings for you overall?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q1" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q1" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q1" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q1" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q1-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+      <hr class="divider">
+
+      <div class="question" id="q2-block">
+        <div class="question-text">
+          2. 經歷整個遊戲過程後，累積起來哪一疊牌讓你輸最多錢？
+          <span class="en">After experiencing the entire game, which deck accumulated the most losses for you overall?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q2" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q2" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q2" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q2" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q2-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+      <hr class="divider">
+
+      <div class="question" id="q3-block">
+        <div class="question-text">
+          3. 經歷整個遊戲過程後，累積起來哪一疊牌讓你贏最多次？
+          <span class="en">After experiencing the entire game, which deck gave you the most winning trials overall?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q3" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q3" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q3" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q3" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q3-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+      <hr class="divider">
+
+      <div class="question" id="q4-block">
+        <div class="question-text">
+          4. 經歷整個遊戲過程後，累積起來哪一疊牌讓你輸最多次？
+          <span class="en">After experiencing the entire game, which deck gave you the most losing trials overall?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q4" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q4" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q4" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q4" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q4-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+      <hr class="divider">
+
+      <div class="question" id="q5-block">
+        <div class="question-text">
+          5. 在遊戲過程中，哪一疊牌讓你一次就贏很多的錢（單次）？
+          <span class="en">During the game, which deck gave you the largest single-trial win?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q5" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q5" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q5" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q5" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q5-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+      <hr class="divider">
+
+      <div class="question" id="q6-block">
+        <div class="question-text">
+          6. 在遊戲過程中，哪一疊牌讓你一次就輸很多的錢（單次）？
+          <span class="en">During the game, which deck gave you the largest single-trial loss?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q6" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q6" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q6" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q6" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q6-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+      <hr class="divider">
+
+      <div class="question" id="q7-block">
+        <div class="question-text">
+          7. 在遊戲過程中，哪一疊牌讓你最願意去選他？
+          <span class="en">During the game, which deck were you most willing to choose?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q7" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q7" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q7" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q7" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q7-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+      <hr class="divider">
+
+      <div class="question" id="q8-block">
+        <div class="question-text">
+          8. 在遊戲過程中，哪一疊牌讓你最不願意去選他？
+          <span class="en">During the game, which deck were you least willing to choose?</span>
+        </div>
+        <div class="options">
+          <div class="option"><label><input type="radio" name="q8" value="A"><span>A 牌 / Deck A</span></label></div>
+          <div class="option"><label><input type="radio" name="q8" value="B"><span>B 牌 / Deck B</span></label></div>
+          <div class="option"><label><input type="radio" name="q8" value="C"><span>C 牌 / Deck C</span></label></div>
+          <div class="option"><label><input type="radio" name="q8" value="D"><span>D 牌 / Deck D</span></label></div>
+        </div>
+        <div class="error-msg" id="q8-err">請選擇一個答案 / Please select an answer</div>
+      </div>
+
+      <button type="submit" class="submit-btn">提交 / Submit</button>
+    </form>
+  </div>
+
+  <div class="thank-you" id="thank-you">
+    <h2>感謝您的參與！<br>Thank You!</h2>
+    <p>您已完成所有題目，感謝您的參與。<br>
+    <em>You have completed all questions. Thank you for your participation.</em></p>
+  </div>
+</div>
+
+<script>
+  // 從網址取得受試者編號，方便之後串接 Google Sheets
+  var params = new URLSearchParams(window.location.search);
+  var participant = params.get('participant') || 'unknown';
+
+  document.getElementById('qform').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var valid = true;
+
+    // 驗證每題都有作答
+    for (var i = 1; i <= 8; i++) {
+      var answered = document.querySelector('input[name="q' + i + '"]:checked');
+      var errEl = document.getElementById('q' + i + '-err');
+      if (!answered) {
+        errEl.style.display = 'block';
+        if (valid) {
+          document.getElementById('q' + i + '-block').scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+        valid = false;
+      } else {
+        errEl.style.display = 'none';
+      }
+    }
+
+    if (!valid) return;
+
+    // 收集答案
+    var answers = { participant: participant };
+    for (var i = 1; i <= 8; i++) {
+      answers['q' + i] = document.querySelector('input[name="q' + i + '"]:checked').value;
+    }
+
+    console.log('問卷答案 / Questionnaire answers:', answers);
+
+    // 顯示感謝頁
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('thank-you').style.display = 'block';
+    window.scrollTo(0, 0);
+  });
+</script>
+</body>
+</html>
