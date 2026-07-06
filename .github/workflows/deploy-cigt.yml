@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Install system build dependencies
         run: |
@@ -88,7 +88,6 @@ jobs:
             em++ $FLAGS -c "$1" -o "$2"
           }
 
-          # Base
           compile_cpp src/base/Evaluator-es.cpp obj-em/src/base/Evaluator-es.o
           compile_cpp src/base/FunctionMap.cpp obj-em/src/base/FunctionMap.o
           compile_cpp src/base/grammar.tab.cpp obj-em/src/base/grammar.tab.o
@@ -100,11 +99,7 @@ jobs:
           compile_cpp src/base/VariableMap.cpp obj-em/src/base/VariableMap.o
           compile_cpp src/base/Variant.cpp obj-em/src/base/Variant.o
           em++ $FLAGS -Wno-register -c src/base/lex.yy.c -o obj-em/src/base/lex.yy.o
-
-          # Apps
           compile_cpp src/apps/PEBL.cpp obj-em/src/apps/PEBL.o
-
-          # Devices
           compile_cpp src/devices/PEventLoop-es.cpp obj-em/src/devices/PEventLoop-es.o
           compile_cpp src/devices/PDevice.cpp obj-em/src/devices/PDevice.o
           compile_cpp src/devices/PEventQueue.cpp obj-em/src/devices/PEventQueue.o
@@ -116,8 +111,6 @@ jobs:
           compile_cpp src/devices/PAudioOut.cpp obj-em/src/devices/PAudioOut.o
           compile_cpp src/devices/PNetwork.cpp obj-em/src/devices/PNetwork.o
           compile_cpp src/devices/PJoystick.cpp obj-em/src/devices/PJoystick.o
-
-          # Libs
           compile_cpp src/libs/PEBLMath.cpp obj-em/src/libs/PEBLMath.o
           compile_cpp src/libs/PEBLStream.cpp obj-em/src/libs/PEBLStream.o
           compile_cpp src/libs/PEBLObjects.cpp obj-em/src/libs/PEBLObjects.o
@@ -125,8 +118,6 @@ jobs:
           compile_cpp src/libs/PEBLList.cpp obj-em/src/libs/PEBLList.o
           compile_cpp src/libs/PEBLString.cpp obj-em/src/libs/PEBLString.o
           compile_cpp src/libs/PEBLLSL.cpp obj-em/src/libs/PEBLLSL.o
-
-          # Objects
           compile_cpp src/objects/PEnvironment.cpp obj-em/src/objects/PEnvironment.o
           compile_cpp src/objects/PWidget.cpp obj-em/src/objects/PWidget.o
           compile_cpp src/objects/PWindow.cpp obj-em/src/objects/PWindow.o
@@ -140,8 +131,6 @@ jobs:
           compile_cpp src/objects/PTextBox.cpp obj-em/src/objects/PTextBox.o
           compile_cpp src/objects/PMovie.cpp obj-em/src/objects/PMovie.o
           compile_cpp src/objects/PCustomObject.cpp obj-em/src/objects/PCustomObject.o
-
-          # Utility
           compile_cpp src/utility/PEBLUtility.cpp obj-em/src/utility/PEBLUtility.o
           compile_cpp src/utility/PError.cpp obj-em/src/utility/PError.o
           compile_cpp src/utility/BinReloc.cpp obj-em/src/utility/BinReloc.o
@@ -151,8 +140,6 @@ jobs:
           compile_cpp src/utility/FontCache.cpp obj-em/src/utility/FontCache.o
           compile_cpp src/utility/FormatParser.cpp obj-em/src/utility/FormatParser.o
           compile_cpp src/utility/PLabStreamingLayer.cpp obj-em/src/utility/PLabStreamingLayer.o
-
-          # Platform SDL
           compile_cpp src/platforms/sdl/PlatformEnvironment.cpp obj-em/src/platforms/sdl/PlatformEnvironment.o
           compile_cpp src/platforms/sdl/PlatformWidget.cpp obj-em/src/platforms/sdl/PlatformWidget.o
           compile_cpp src/platforms/sdl/PlatformWindow.cpp obj-em/src/platforms/sdl/PlatformWindow.o
@@ -170,10 +157,7 @@ jobs:
           compile_cpp src/platforms/sdl/PlatformNetwork.cpp obj-em/src/platforms/sdl/PlatformNetwork.o
           compile_cpp src/platforms/sdl/PlatformJoystick.cpp obj-em/src/platforms/sdl/PlatformJoystick.o
           compile_cpp src/platforms/sdl/PlatformAudioIn.cpp obj-em/src/platforms/sdl/PlatformAudioIn.o
-
-          # C utility
           emcc $FLAGS -std=gnu99 -c src/utility/re.c -o obj-em/src/utility/re.o
-
           echo "All source files compiled successfully"
 
       - name: Link final WASM binary
@@ -186,8 +170,11 @@ jobs:
           cp bin/pebl2.wasm site/pebl2.wasm
           if [ -f bin/pebl2.data ]; then cp bin/pebl2.data site/pebl2.data; fi
           cp questionnaire.html site/questionnaire.html
-          cat > site/index.html << 'HTMLEOF'
-          <!doctype html>
+          python3 - << 'PYEOF'
+          import os
+          participant_js = "var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random()*900000+100000);"
+          lang_js = "var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';"
+          html = """<!doctype html>
           <html>
           <head>
             <meta charset="utf-8">
@@ -195,40 +182,16 @@ jobs:
             <title>cIGT Task</title>
             <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
-              html, body {
-                width: 100%; height: 100%;
-                background: #000;
-                overflow: hidden;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-              #canvas-container {
-                width: 100vw;
-                height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-              canvas {
-                display: block;
-                background: #fff;
-                max-width: 100vw;
-                max-height: 100vh;
-                width: auto !important;
-                height: auto !important;
-                object-fit: contain;
-              }
-              #status {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                color: white;
-                font-family: sans-serif;
-                font-size: 18px;
-                text-align: center;
-              }
+              html, body { width: 100%; height: 100%; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+              #canvas-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+              canvas { display: block; background: #fff; max-width: 100vw; max-height: 100vh; width: auto !important; height: auto !important; object-fit: contain; }
+              #status { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); color: white; font-family: sans-serif; font-size: 18px; text-align: center; }
+              #q-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; }
+              #q-overlay.show { display:flex; }
+              #q-box { text-align:center; padding:40px; }
+              #q-box p { color:white; font-size:22px; margin-bottom:10px; }
+              #q-box .sub { color:#ccc; font-size:16px; margin-bottom:30px; }
+              #q-btn { display:inline-block; padding:16px 48px; background:#1a73e8; color:white; text-decoration:none; border-radius:8px; font-size:20px; font-weight:bold; }
             </style>
           </head>
           <body>
@@ -236,64 +199,38 @@ jobs:
             <div id="canvas-container">
               <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
             </div>
+            <div id="q-overlay">
+              <div id="q-box">
+                <p>\u9060\u6232\u5df2\u7d50\u675f</p>
+                <p class="sub">Game over. Please continue to the questionnaire.</p>
+                <a id="q-btn" href="#">\u9032\u5165\u554f\u5377 / Start Questionnaire</a>
+              </div>
+            </div>
             <script src="pebl2.js"></script>
             <script>
               var canvas = document.getElementById('canvas');
-              var container = document.getElementById('canvas-container');
-
               function resizeCanvas() {
                 var gameW = 1280, gameH = 720;
-                var winW = window.innerWidth;
-                var winH = window.innerHeight;
-                var scale = Math.min(winW / gameW, winH / gameH);
+                var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
                 canvas.style.width = (gameW * scale) + 'px';
                 canvas.style.height = (gameH * scale) + 'px';
               }
               window.addEventListener('resize', resizeCanvas);
               resizeCanvas();
-
-              var Module = {
-                noInitialRun: true,
-                canvas: canvas,
-                print: function(t) { console.log(t); },
-                printErr: function(t) { console.error(t); },
-                setStatus: function(t) {
-                  var s = document.getElementById('status');
-                  if (s) s.innerHTML = t || '';
-                  if (!t) { s.style.display = 'none'; }
-                }
-              };
-              createPEBLModule(Module).then(function(instance) {
-                var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random()*900000+100000);
+              var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random()*900000+100000);
               var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
-
-              function showQuestionnaireButton() {
-                var overlay = document.createElement('div');
-                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-                overlay.innerHTML = '<div style="text-align:center;padding:40px;">'
-                  + '<p style="color:white;font-size:22px;margin-bottom:10px;">&#24遊戲已結束</p>'
-                  + '<p style="color:#ccc;font-size:16px;margin-bottom:30px;">Game over. Please continue to the questionnaire.</p>'
-                  + '<a href="questionnaire.html?participant=' + participant + '" style="display:inline-block;padding:16px 48px;background:#1a73e8;color:white;text-decoration:none;border-radius:8px;font-size:20px;font-weight:bold;">進入問卷 / Start Questionnaire</a>'
-                  + '</div>';
-                document.body.appendChild(overlay);
+              function showQuestionnaire() {
+                document.getElementById('q-btn').href = 'questionnaire.html?participant=' + participant;
+                document.getElementById('q-overlay').classList.add('show');
               }
-
               var Module = {
                 noInitialRun: true,
                 canvas: canvas,
                 print: function(t) { console.log(t); },
                 printErr: function(t) { console.error(t); },
-                setStatus: function(t) {
-                  var s = document.getElementById('status');
-                  if (s) s.innerHTML = t || '';
-                  if (!t) { s.style.display = 'none'; }
-                },
-                onExit: function(code) {
-                  showQuestionnaireButton();
-                },
-                postRun: [function() {
-                  showQuestionnaireButton();
-                }]
+                setStatus: function(t) { var s = document.getElementById('status'); if(s){ s.innerHTML = t||''; if(!t) s.style.display='none'; } },
+                onExit: function(code) { showQuestionnaire(); },
+                postRun: [function() { showQuestionnaire(); }]
               };
               createPEBLModule(Module).then(function(instance) {
                 document.getElementById('status').style.display = 'none';
@@ -301,8 +238,12 @@ jobs:
               });
             </script>
           </body>
-          </html>
-          HTMLEOF
+          </html>"""
+          os.makedirs('site', exist_ok=True)
+          with open('site/index.html', 'w', encoding='utf-8') as f:
+              f.write(html)
+          print("index.html written successfully")
+          PYEOF
           ls -la site/
 
       - name: Configure GitHub Pages
