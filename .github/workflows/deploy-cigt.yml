@@ -264,9 +264,39 @@ jobs:
                 }
               };
               createPEBLModule(Module).then(function(instance) {
-                document.getElementById('status').style.display = 'none';
                 var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random()*900000+100000);
-                var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
+              var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
+
+              function showQuestionnaireButton() {
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                overlay.innerHTML = '<div style="text-align:center;padding:40px;">'
+                  + '<p style="color:white;font-size:22px;margin-bottom:10px;">&#24遊戲已結束</p>'
+                  + '<p style="color:#ccc;font-size:16px;margin-bottom:30px;">Game over. Please continue to the questionnaire.</p>'
+                  + '<a href="questionnaire.html?participant=' + participant + '" style="display:inline-block;padding:16px 48px;background:#1a73e8;color:white;text-decoration:none;border-radius:8px;font-size:20px;font-weight:bold;">進入問卷 / Start Questionnaire</a>'
+                  + '</div>';
+                document.body.appendChild(overlay);
+              }
+
+              var Module = {
+                noInitialRun: true,
+                canvas: canvas,
+                print: function(t) { console.log(t); },
+                printErr: function(t) { console.error(t); },
+                setStatus: function(t) {
+                  var s = document.getElementById('status');
+                  if (s) s.innerHTML = t || '';
+                  if (!t) { s.style.display = 'none'; }
+                },
+                onExit: function(code) {
+                  showQuestionnaireButton();
+                },
+                postRun: [function() {
+                  showQuestionnaireButton();
+                }]
+              };
+              createPEBLModule(Module).then(function(instance) {
+                document.getElementById('status').style.display = 'none';
                 instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant, '--language', lang]);
               });
             </script>
