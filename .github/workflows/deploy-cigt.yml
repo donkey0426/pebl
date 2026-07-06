@@ -229,8 +229,7 @@ jobs:
                 print: function(t) { console.log(t); },
                 printErr: function(t) { console.error(t); },
                 setStatus: function(t) { var s = document.getElementById('status'); if(s){ s.innerHTML = t||''; if(!t) s.style.display='none'; } },
-                onExit: function(code) { showQuestionnaire(); },
-                postRun: [function() { showQuestionnaire(); }]
+                onExit: function(code) { setTimeout(function(){ showQuestionnaire(); }, 1000); }
               };
               createPEBLModule(Module).then(function(instance) {
                 document.getElementById('status').style.display = 'none';
