@@ -50,6 +50,7 @@ html = """\
     var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random() * 900000 + 100000);
     var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
     var taskFinished = false;
+    var taskStarted = false;
 
     function showQuestionnaire() {
       if (taskFinished) return;
@@ -62,23 +63,38 @@ html = """\
       noInitialRun: true,
       canvas: canvas,
       print: function(t) {
-        console.log(t);
-        if (t && t.indexOf('PEBL test completed') >= 0) {
+        console.log('[PEBL]', t);
+        if (taskStarted && t && (
+          t.indexOf('PEBL test completed') >= 0 ||
+          t.indexOf('exitCode') >= 0 ||
+          t.indexOf('Exiting PEBL') >= 0
+        )) {
           setTimeout(showQuestionnaire, 1500);
         }
       },
-      printErr: function(t) { console.error(t); },
+      printErr: function(t) {
+        console.error('[PEBL ERR]', t);
+        if (taskStarted && t && (
+          t.indexOf('PEBL test completed') >= 0 ||
+          t.indexOf('exitCode') >= 0 ||
+          t.indexOf('Exiting PEBL') >= 0
+        )) {
+          setTimeout(showQuestionnaire, 1500);
+        }
+      },
       setStatus: function(t) {
         var s = document.getElementById('status');
         if (s) { s.innerHTML = t || ''; if (!t) s.style.display = 'none'; }
       },
       onExit: function(code) {
-        setTimeout(showQuestionnaire, 1000);
+        console.log('[PEBL] onExit called, code=', code);
+        if (taskStarted) { setTimeout(showQuestionnaire, 1000); }
       }
     };
 
     createPEBLModule(Module).then(function(instance) {
       document.getElementById('status').style.display = 'none';
+      taskStarted = true;
       instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant, '--language', lang]);
     });
   </script>
