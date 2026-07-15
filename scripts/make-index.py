@@ -52,12 +52,17 @@ html = """\
     var taskFinished = false;
     var taskStarted = false;
 
-    function showQuestionnaire() {
+   function showQuestionnaire() {
       if (taskFinished) return;
       taskFinished = true;
       document.getElementById('q-btn').href = 'questionnaire.html?participant=' + participant;
       document.getElementById('q-overlay').classList.add('show');
     }
+
+    document.addEventListener('peblTestComplete', function(e) {
+      console.log('[PEBL] peblTestComplete event received', e.detail);
+      showQuestionnaire();
+    });
 
     var Module = {
       noInitialRun: true,
