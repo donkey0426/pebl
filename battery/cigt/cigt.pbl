@@ -440,7 +440,7 @@ define Start(lPar)
   Show(gInstructions)
   RemoveComplex(earnings)
   Draw()
-  WaitForKeyPress("<esc>")
+  Wait(3000)
 
 } # End of function Start().
 
