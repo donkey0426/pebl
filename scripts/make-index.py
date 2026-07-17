@@ -9,11 +9,11 @@ html = """\
   <title>cIGT Task</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; margin: 0; }
     #canvas-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
     canvas { display: block; background: #fff; }
     #status { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); color: white; font-family: sans-serif; font-size: 18px; text-align: center; }
-    #q-overlayr { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; align-items: center; justify-content: center; }
+    #q-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; align-items: center; justify-content: center; }
     #q-overlay.show { display: flex; }
     #q-box { text-align: center; padding: 40px; max-width: 600px; }
     #q-box p { color: white; font-size: 20px; margin-bottom: 12px; line-height: 1.6; }
@@ -38,7 +38,7 @@ html = """\
   <script>
     var canvas = document.getElementById('canvas');
 
-function resizeCanvas() {
+    function resizeCanvas() {
       var gameW = 1280, gameH = 720;
       var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
       canvas.style.setProperty('width', (gameW * scale) + 'px', 'important');
@@ -56,9 +56,11 @@ function resizeCanvas() {
     var peblInstance = null;
 
     var GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmzLzlVqizQH6yGk4FQ2YHSXPRIinEV_IvIanY7MsPjZS1ywl1GdZec6TAwt89OOlqqg/exec';
-   function showQuestionnaire() {
+
+    function showQuestionnaire() {
       if (taskFinished) return;
       taskFinished = true;
+      document.getElementById('canvas-container').style.display = 'none';
       document.getElementById('q-btn').href = 'questionnaire.html?participant=' + participant;
       document.getElementById('q-overlay').classList.add('show');
     }
@@ -121,7 +123,7 @@ function resizeCanvas() {
       }
     };
 
-  createPEBLModule(Module).then(function(instance) {
+    createPEBLModule(Module).then(function(instance) {
       peblInstance = instance;
       document.getElementById('status').style.display = 'none';
       taskStarted = true;
