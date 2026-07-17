@@ -51,7 +51,9 @@ html = """\
     var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
     var taskFinished = false;
     var taskStarted = false;
+    var peblInstance = null;
 
+    var GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmzLzlVqizQH6yGk4FQ2YHSXPRIinEV_IvIanY7MsPjZS1ywl1GdZec6TAwt89OOlqqg/exec';
    function showQuestionnaire() {
       if (taskFinished) return;
       taskFinished = true;
@@ -59,8 +61,28 @@ html = """\
       document.getElementById('q-overlay').classList.add('show');
     }
 
+    function uploadCSVToGoogleSheets() {
+      try {
+        var csvPath = '/usr/local/share/pebl2/battery/cigt/data/' + participant + '/cigtlog-' + participant + '.csv';
+        var csvContent = peblInstance.FS.readFile(csvPath, { encoding: 'utf8' });
+        console.log('[PEBL] CSV read OK, uploading to Google Sheets...');
+        fetch(GOOGLE_SHEETS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ participant: participant, csv: csvContent })
+        }).then(function() {
+          console.log('[PEBL] Uploaded to Google Sheets successfully');
+        }).catch(function(err) {
+          console.error('[PEBL] Google Sheets upload failed:', err);
+        });
+      } catch (e) {
+        console.error('[PEBL] Could not read CSV file:', e);
+      }
+    }
+
     document.addEventListener('peblTestComplete', function(e) {
       console.log('[PEBL] peblTestComplete event received', e.detail);
+      uploadCSVToGoogleSheets();
       showQuestionnaire();
     });
 
@@ -97,7 +119,8 @@ html = """\
       }
     };
 
-    createPEBLModule(Module).then(function(instance) {
+  createPEBLModule(Module).then(function(instance) {
+      peblInstance = instance;
       document.getElementById('status').style.display = 'none';
       taskStarted = true;
       instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant, '--language', lang]);
