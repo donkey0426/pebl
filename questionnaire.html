@@ -250,8 +250,9 @@
 
 <script>
   // 從網址取得受試者編號，方便之後串接 Google Sheets
-  var params = new URLSearchParams(window.location.search);
+var params = new URLSearchParams(window.location.search);
   var participant = params.get('participant') || 'unknown';
+  var GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmzLzlVqizQH6yGk4FQ2YHSXPRIinEV_IvIanY7MsPjZS1ywl1GdZec6TAwt89OOlqqg/exec';
 
   document.getElementById('qform').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -281,6 +282,16 @@
     }
 
     console.log('問卷答案 / Questionnaire answers:', answers);
+
+    fetch(GOOGLE_SHEETS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(answers)
+    }).then(function() {
+      console.log('[Questionnaire] 已上傳到 Google Sheets');
+    }).catch(function(err) {
+      console.error('[Questionnaire] 上傳失敗:', err);
+    });
 
     // 顯示感謝頁
     document.getElementById('form-section').style.display = 'none';
