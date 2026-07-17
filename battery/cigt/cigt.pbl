@@ -440,7 +440,7 @@ define Start(lPar)
   Show(gInstructions)
   RemoveComplex(earnings)
   Draw()
-  Wait(3000)
+  Wait(800)
 
 } # End of function Start().
 
