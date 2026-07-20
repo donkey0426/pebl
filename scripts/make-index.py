@@ -26,7 +26,7 @@ html = """\
 <body>
   <div id="status">Loading...</div>
   <div id="canvas-container">
-    <<div id="canvas-scaler">
+    <div id="canvas-scaler">
       <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
   </div>
