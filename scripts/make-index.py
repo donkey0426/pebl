@@ -10,7 +10,8 @@ html = """\
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; background: #000; overflow: hidden; margin: 0; }
-    #canvas-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+   #canvas-container { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+    #canvas-scaler { position: absolute; top: 50%; left: 50%; transform-origin: top left; }
     canvas { display: block; background: #fff; }
     #status { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); color: white; font-family: sans-serif; font-size: 18px; text-align: center; }
     #q-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; align-items: center; justify-content: center; }
@@ -25,7 +26,9 @@ html = """\
 <body>
   <div id="status">Loading...</div>
   <div id="canvas-container">
-    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <<div id="canvas-scaler">
+      <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    </div>
   </div>
   <div id="q-overlay">
     <div id="q-box">
@@ -38,11 +41,13 @@ html = """\
   <script>
     var canvas = document.getElementById('canvas');
 
+    var scaler = document.getElementById('canvas-scaler');
     function resizeCanvas() {
       var gameW = 1280, gameH = 720;
       var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
-      canvas.style.setProperty('width', (gameW * scale) + 'px', 'important');
-      canvas.style.setProperty('height', (gameH * scale) + 'px', 'important');
+      scaler.style.width = gameW + 'px';
+      scaler.style.height = gameH + 'px';
+      scaler.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
     }
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('orientationchange', resizeCanvas);
