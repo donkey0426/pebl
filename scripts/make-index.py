@@ -37,6 +37,8 @@ html = """\
       <a id="q-btn" href="#">\u9032\u5165\u554f\u5377 / Start Questionnaire</a>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
   <script src="pebl2.js"></script>
   <script>
     var canvas = document.getElementById('canvas');
