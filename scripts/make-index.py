@@ -5,12 +5,12 @@ html = """\
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>cIGT Task</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; margin: 0; }
-    #canvas-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+   html, body { width: 100%; height: 100%; background: #000; overflow: auto; margin: 0; -webkit-overflow-scrolling: touch; }
+    #canvas-container { min-width: 100vw; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     canvas { display: block; background: #fff; }
     #status { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); color: white; font-family: sans-serif; font-size: 18px; text-align: center; }
     #rotate-prompt { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20000; color: white; font-family: sans-serif; align-items: center; justify-content: center; text-align: center; padding: 20px; }
@@ -60,18 +60,6 @@ html = """\
     window.addEventListener('orientationchange', checkOrientation);
     checkOrientation();
 
-    function resizeCanvas() {
-      var gameW = 1280, gameH = 720;
-      var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
-      var w = (gameW * scale) + 'px';
-      var h = (gameH * scale) + 'px';
-      if (canvas.style.width !== w) canvas.style.setProperty('width', w, 'important');
-      if (canvas.style.height !== h) canvas.style.setProperty('height', h, 'important');
-      requestAnimationFrame(resizeCanvas);
-    }
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('orientationchange', resizeCanvas);
-    resizeCanvas();
 
     var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random() * 900000 + 100000);
     var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
