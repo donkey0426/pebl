@@ -11,7 +11,7 @@ html = """\
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; background: #000; overflow: hidden; margin: 0; }
    #canvas-container { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
-    #canvas-scaler { position: absolute; top: 50%; left: 50%; transform-origin: top left; }
+    #canvas-scaler { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
     canvas { display: block; background: #fff; }
     #status { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); color: white; font-family: sans-serif; font-size: 18px; text-align: center; }
     #q-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; align-items: center; justify-content: center; }
@@ -44,10 +44,14 @@ html = """\
     var scaler = document.getElementById('canvas-scaler');
     function resizeCanvas() {
       var gameW = 1280, gameH = 720;
-      var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+      var scale = Math.min(vw / gameW, vh / gameH);
+      var offsetX = (vw - gameW * scale) / 2;
+      var offsetY = (vh - gameH * scale) / 2;
       scaler.style.width = gameW + 'px';
       scaler.style.height = gameH + 'px';
-      scaler.style.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+      scaler.style.transform = 'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
     }
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('orientationchange', resizeCanvas);
