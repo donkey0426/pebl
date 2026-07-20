@@ -13,6 +13,10 @@ html = """\
     #canvas-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
     canvas { display: block; background: #fff; }
     #status { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); color: white; font-family: sans-serif; font-size: 18px; text-align: center; }
+    #rotate-prompt { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20000; color: white; font-family: sans-serif; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+    #rotate-prompt.show { display: flex; }
+    #rotate-icon { font-size: 56px; margin-bottom: 20px; animation: rotateHint 1.5s ease-in-out infinite; }
+    @keyframes rotateHint { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
     #q-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; align-items: center; justify-content: center; }
     #q-overlay.show { display: flex; }
     #q-box { text-align: center; padding: 40px; max-width: 600px; }
@@ -24,6 +28,13 @@ html = """\
 </head>
 <body>
   <div id="status">Loading...</div>
+  <div id="rotate-prompt">
+    <div>
+      <div id="rotate-icon">&#128241;</div>
+      <div style="font-size:20px; margin-bottom:10px;">請將手機轉為橫向繼續作業</div>
+      <div style="font-size:15px; color:#ccc;">Please rotate your device to landscape to continue</div>
+    </div>
+  </div>
   <div id="canvas-container">
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
   </div>
@@ -40,16 +51,27 @@ html = """\
   <script>
     var canvas = document.getElementById('canvas');
 
+    var rotatePrompt = document.getElementById('rotate-prompt');
+    function checkOrientation() {
+      var isPortraitPhone = window.innerWidth < window.innerHeight && window.innerWidth < 900;
+      rotatePrompt.classList.toggle('show', isPortraitPhone);
+    }
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    checkOrientation();
+
     function resizeCanvas() {
       var gameW = 1280, gameH = 720;
       var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
-      canvas.style.setProperty('width', (gameW * scale) + 'px', 'important');
-      canvas.style.setProperty('height', (gameH * scale) + 'px', 'important');
+      var w = (gameW * scale) + 'px';
+      var h = (gameH * scale) + 'px';
+      if (canvas.style.width !== w) canvas.style.setProperty('width', w, 'important');
+      if (canvas.style.height !== h) canvas.style.setProperty('height', h, 'important');
+      requestAnimationFrame(resizeCanvas);
     }
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('orientationchange', resizeCanvas);
     resizeCanvas();
-    setInterval(resizeCanvas, 500);
 
     var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random() * 900000 + 100000);
     var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
