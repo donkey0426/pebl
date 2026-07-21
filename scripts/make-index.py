@@ -50,6 +50,12 @@ html = """\
   <script src="pebl2.js"></script>
   <script>
     var canvas = document.getElementById('canvas');
+    function forceCanvasResolution() {
+      if (canvas.width !== 1280) canvas.width = 1280;
+      if (canvas.height !== 720) canvas.height = 720;
+      requestAnimationFrame(forceCanvasResolution);
+    }
+    forceCanvasResolution();
 
     var rotatePrompt = document.getElementById('rotate-prompt');
     function checkOrientation() {
