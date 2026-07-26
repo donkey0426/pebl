@@ -53,6 +53,12 @@ html = """\
     function forceCanvasResolution() {
       if (canvas.width !== 1280) canvas.width = 1280;
       if (canvas.height !== 720) canvas.height = 720;
+      var gameW = 1280, gameH = 720;
+      var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
+      var w = (gameW * scale) + 'px';
+      var h = (gameH * scale) + 'px';
+      if (canvas.style.width !== w) canvas.style.setProperty('width', w, 'important');
+      if (canvas.style.height !== h) canvas.style.setProperty('height', h, 'important');
       requestAnimationFrame(forceCanvasResolution);
     }
     forceCanvasResolution();
