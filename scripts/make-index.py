@@ -50,18 +50,16 @@ html = """\
   <script src="pebl2.js"></script>
   <script>
     var canvas = document.getElementById('canvas');
-    function forceCanvasResolution() {
-      if (canvas.width !== 1280) canvas.width = 1280;
-      if (canvas.height !== 720) canvas.height = 720;
+    function resizeCanvas() {
       var gameW = 1280, gameH = 720;
       var scale = Math.min(window.innerWidth / gameW, window.innerHeight / gameH);
       var w = (gameW * scale) + 'px';
       var h = (gameH * scale) + 'px';
       if (canvas.style.width !== w) canvas.style.setProperty('width', w, 'important');
       if (canvas.style.height !== h) canvas.style.setProperty('height', h, 'important');
-      requestAnimationFrame(forceCanvasResolution);
+      requestAnimationFrame(resizeCanvas);
     }
-    forceCanvasResolution();
+    resizeCanvas();
 
     var rotatePrompt = document.getElementById('rotate-prompt');
     function checkOrientation() {
@@ -151,7 +149,7 @@ html = """\
       peblInstance = instance;
       document.getElementById('status').style.display = 'none';
       taskStarted = true;
-      instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant, '--language', lang]);
+      instance.callMain(['/usr/local/share/pebl2/battery/cigt/cigt.pbl', '-s', participant, '--language', lang, '--display', '1280x720']);
     });
   </script>
 </body>
