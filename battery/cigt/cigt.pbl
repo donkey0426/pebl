@@ -470,7 +470,7 @@ define Initialize()
   gColRed   <- MakeColor("red")
   gColBlack <- MakeColor("black")
 
-  gCJKFont <- "NotoSansCJK-cigt-v3.ttf"
+  gCJKFont <- "NotoSansCJK-cigt-final.ttf"
   gStimFont         <- MakeFont(gCJKFont, 0, 36, gfg, bg1, 0)
   gCorrFont         <- MakeFont(gCJKFont, 0, 36, gcolGreen, bg1, 0)
   gIncorrFont       <- MakeFont(gCJKFont, 0, 36, gcolRed, bg1, 0)
