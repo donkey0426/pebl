@@ -40,7 +40,7 @@ define Start(lPar)
                ["startvalue",2000],
                ["rewarddelay",1500],
                ["penaltydelay",1500],
-               ["playsounds",1],
+               ["playsounds",0],
                ["displaycounter",0]
               ]
 
