@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: libs/SDL2_gfx-1.0.4/build-em
-          key: sdl2gfx-em-${{ runner.os }}-${{ env.EMSDK_VERSION }}-v8
+          key: sdl2gfx-em-${{ runner.os }}-${{ env.EMSDK_VERSION }}-v9
 
       - name: Build SDL2_gfx for Emscripten
         if: steps.cache-sdl2gfx.outputs.cache-hit != 'true'
