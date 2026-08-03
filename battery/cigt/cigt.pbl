@@ -504,6 +504,11 @@ define Initialize()
   gColBlack <- MakeColor("black")
 
   gCJKFont <- "NotoSansCJK-cigt-final-v2.ttf"
+  gStimFont         <- MakeFont(gCJKFont, 0, 36, gfg, bg1, 0)
+  gCorrFont         <- MakeFont(gCJKFont, 0, 36, gcolGreen, bg1, 0)
+  gIncorrFont       <- MakeFont(gCJKFont, 0, 36, gcolRed, bg1, 0)
+  gInstructionsFont <- MakeFont(gCJKFont, 0, 22, gfg, bg, 0)
+  gHeaderFont       <- MakeFont(gCJKFont, 0, 28, gfg, bg, 0)
   gGraphFont        <- MakeFont(gCJKFont, 0, 15, gfg, bg, 0)
   gTitleFont        <- MakeFont(gCJKFont, 1, 26, gfg, bg, 0)
   gBoldInstFont     <- MakeFont(gCJKFont, 1, 22, gfg, bg, 0)
@@ -528,6 +533,11 @@ define Initialize()
   AddObject(gInstSubhead, gWin)
   Move(gInstSubhead, gVideoWidth/2-300, gVideoHeight/2-195)
   Hide(gInstSubhead)
+
+  gHeader <- MakeLabel("", gHeaderFont)
+  AddObject(gHeader, gWin)
+  Move(gHeader, gVideoWidth/2, gVideoHeight/2+50)
+  Hide(gHeader)
 
   gFooter <- MakeLabel("", gStimFont)
   AddObject(gFooter, gWin)
