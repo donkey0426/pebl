@@ -34,12 +34,12 @@ define Start(lPar)
   parpairs <- [["gainfile","cIGT-gain-ABCD.txt"],
                ["lossfile","cIGT-loss-ABCD.txt"],
                ["numtrials",3],
-               ["DelayBetweenTrials",175],
+               ["DelayBetweenTrials",100],
                ["UseMouse",1],          ## Should we use the mouse or the keyboard?
                ["shuffledecks",0],      ## whether deck sequences should be shuffled (default off)
                ["startvalue",2000],
-               ["rewarddelay",900],
-               ["penaltydelay",900],
+               ["rewarddelay",800],
+               ["penaltydelay",800],
                ["playsounds",0],
                ["displaycounter",0]
               ]
