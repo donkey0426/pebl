@@ -38,8 +38,8 @@ define Start(lPar)
                ["UseMouse",1],          ## Should we use the mouse or the keyboard?
                ["shuffledecks",0],      ## whether deck sequences should be shuffled (default off)
                ["startvalue",2000],
-               ["rewarddelay",800],
-               ["penaltydelay",800],
+               ["rewarddelay",600],
+               ["penaltydelay",600],
                ["playsounds",0],
                ["displaycounter",0]
               ]
@@ -473,7 +473,7 @@ define Start(lPar)
   Show(gInstructions)
   RemoveComplex(earnings)
   Draw()
-  Wait(800)
+  Wait(1000)
 
 } # End of function Start().
 
