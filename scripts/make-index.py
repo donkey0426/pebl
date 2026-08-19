@@ -76,18 +76,17 @@ html = """\
     var taskFinished = false;
     var taskStarted = false;
     var peblInstance = null;
+    var dataUploaded = false;
 
     var GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmzLzlVqizQH6yGk4FQ2YHSXPRIinEV_IvIanY7MsPjZS1ywl1GdZec6TAwt89OOlqqg/exec';
 
-    function showQuestionnaire() {
-      if (taskFinished) return;
-      taskFinished = true;
-      document.getElementById('canvas-container').style.display = 'none';
-      document.getElementById('q-btn').href = 'questionnaire.html?participant=' + participant;
-      document.getElementById('q-overlay').classList.add('show');
-    }
-
     function uploadCSVToGoogleSheets() {
+      // 保護機制：不管被呼叫幾次，實際只會真正上傳一次
+      if (dataUploaded) {
+        console.log('[PEBL] Upload already done, skipping duplicate upload');
+        return;
+      }
+      dataUploaded = true;
       try {
         var csvPath = '/usr/local/share/pebl2/battery/cigt/data/' + participant + '/cigtlog-' + participant + '.csv';
         var csvContent = peblInstance.FS.readFile(csvPath, { encoding: 'utf8' });
@@ -106,9 +105,18 @@ html = """\
       }
     }
 
+    function showQuestionnaire() {
+      if (taskFinished) return;
+      taskFinished = true;
+      // 不論是從哪個結束偵測路徑觸發，這裡都會確保資料被上傳一次
+      uploadCSVToGoogleSheets();
+      document.getElementById('canvas-container').style.display = 'none';
+      document.getElementById('q-btn').href = 'questionnaire.html?participant=' + participant;
+      document.getElementById('q-overlay').classList.add('show');
+    }
+
     document.addEventListener('peblTestComplete', function(e) {
       console.log('[PEBL] peblTestComplete event received', e.detail);
-      uploadCSVToGoogleSheets();
       showQuestionnaire();
     });
 
