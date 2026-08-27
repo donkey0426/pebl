@@ -516,8 +516,8 @@ define Initialize()
     gInstructions.direction <- (-1)
   }
 
-  AddObject(gInstructions, gWin)
-  Move(gInstructions, gVideoWidth/2-300, gVideoHeight/2-160)
+AddObject(gInstructions, gWin)
+  Move(gInstructions, gVideoWidth/2-300, gVideoHeight/2-135)
   Hide(gInstructions)
 
   gInstTitle <- MakeLabel("", gTitleFont)
