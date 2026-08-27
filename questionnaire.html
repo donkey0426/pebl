@@ -107,11 +107,60 @@
     }
     .thank-you h2 { font-size: 24px; margin-bottom: 12px; color: #1a73e8; }
     .thank-you p { font-size: 16px; color: #444; line-height: 1.6; }
+
+    /* Q9 / Q10 專用樣式：ABCD 數字分配題 */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    .count-inputs {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .count-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 70px;
+    }
+    .count-item label {
+      font-size: 15px;
+      font-weight: bold;
+      color: #1a73e8;
+    }
+    .count-item input[type="number"] {
+      width: 100%;
+      padding: 10px 8px;
+      font-size: 16px;
+      text-align: center;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      -moz-appearance: textfield;
+    }
+    .count-item input[type="number"]:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+    .total-display {
+      margin-top: 16px;
+      font-size: 15px;
+      color: #444;
+      text-align: center;
+      padding: 10px;
+      background: #f5f7fa;
+      border-radius: 6px;
+    }
+    .total-display.ok { color: #1a73e8; font-weight: bold; background: #e8f0fe; }
+    .total-display.bad { color: #d32f2f; font-weight: bold; background: #fdecea; }
   </style>
 </head>
 <body>
 <div class="container">
-  <div id="form-section">
+
+  <!-- 第 1 頁：第 1-8 題（選擇題） -->
+  <div class="page-section active" id="page1">
     <p class="subtitle">請根據您在遊戲中的經歷回答以下問題，沒有對錯之分。<br>
     <em>Please answer the following questions based on your experience in the game. There are no right or wrong answers.</em></p>
 
@@ -236,8 +285,70 @@
         <div class="error-msg" id="q8-err">請選擇一個答案 / Please select an answer</div>
       </div>
 
-      <button type="submit" class="submit-btn">提交 / Submit</button>
+      <button type="button" class="submit-btn" id="page1-next-btn">下一頁 / Next</button>
     </form>
+  </div>
+
+  <!-- 第 2 頁：第 9 題（ABCD 選牌次數分配 - 實際回憶） -->
+  <div class="page-section" id="page2">
+    <div class="question" id="q9-block">
+      <div class="question-text">
+        9. 在剛剛的遊戲過程中，是 100 次的選牌。請您回憶一下，您分別選了 A、B、C、D 幾次？
+        <span class="en">During the task you just completed, you made a total of 100 card selections. Please recall how many times you chose each deck: A, B, C, and D.</span>
+      </div>
+      <div class="count-inputs">
+        <div class="count-item">
+          <label>A</label>
+          <input type="number" id="q9-A" min="0" max="100" value="0">
+        </div>
+        <div class="count-item">
+          <label>B</label>
+          <input type="number" id="q9-B" min="0" max="100" value="0">
+        </div>
+        <div class="count-item">
+          <label>C</label>
+          <input type="number" id="q9-C" min="0" max="100" value="0">
+        </div>
+        <div class="count-item">
+          <label>D</label>
+          <input type="number" id="q9-D" min="0" max="100" value="0">
+        </div>
+      </div>
+      <div class="total-display" id="q9-total-display">目前總和 / Current total：<span id="q9-total">0</span> / 100</div>
+      <div class="error-msg" id="q9-err">四個數字加總必須為 100 / The four numbers must add up to 100</div>
+    </div>
+    <button type="button" class="submit-btn" id="q9-next-btn">下一頁 / Next</button>
+  </div>
+
+  <!-- 第 3 頁：第 10 題（ABCD 選牌次數分配 - 假設重玩） -->
+  <div class="page-section" id="page3">
+    <div class="question" id="q10-block">
+      <div class="question-text">
+        10. 如果再讓您玩一次這個遊戲，您預期自己選擇 A、B、C、D 的次數分配會是如何？
+        <span class="en">If you were to play this game again, how many times do you think you would choose each of decks A, B, C, and D?</span>
+      </div>
+      <div class="count-inputs">
+        <div class="count-item">
+          <label>A</label>
+          <input type="number" id="q10-A" min="0" max="100" value="0">
+        </div>
+        <div class="count-item">
+          <label>B</label>
+          <input type="number" id="q10-B" min="0" max="100" value="0">
+        </div>
+        <div class="count-item">
+          <label>C</label>
+          <input type="number" id="q10-C" min="0" max="100" value="0">
+        </div>
+        <div class="count-item">
+          <label>D</label>
+          <input type="number" id="q10-D" min="0" max="100" value="0">
+        </div>
+      </div>
+      <div class="total-display" id="q10-total-display">目前總和 / Current total：<span id="q10-total">0</span> / 100</div>
+      <div class="error-msg" id="q10-err">四個數字加總必須為 100 / The four numbers must add up to 100</div>
+    </div>
+    <button type="button" class="submit-btn" id="q10-submit-btn">提交 / Submit</button>
   </div>
 
   <div class="thank-you" id="thank-you">
@@ -249,15 +360,16 @@
 
 <script>
   // 從網址取得受試者編號，方便之後串接 Google Sheets
-var params = new URLSearchParams(window.location.search);
+  var params = new URLSearchParams(window.location.search);
   var participant = params.get('participant') || 'unknown';
   var GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmzLzlVqizQH6yGk4FQ2YHSXPRIinEV_IvIanY7MsPjZS1ywl1GdZec6TAwt89OOlqqg/exec';
 
-  document.getElementById('qform').addEventListener('submit', function(e) {
-    e.preventDefault();
+  var page1Answers = {};
+
+  // ===== 第 1 頁：第 1-8 題驗證 =====
+  document.getElementById('page1-next-btn').addEventListener('click', function() {
     var valid = true;
 
-    // 驗證每題都有作答
     for (var i = 1; i <= 8; i++) {
       var answered = document.querySelector('input[name="q' + i + '"]:checked');
       var errEl = document.getElementById('q' + i + '-err');
@@ -274,11 +386,92 @@ var params = new URLSearchParams(window.location.search);
 
     if (!valid) return;
 
-    // 收集答案
-    var answers = { participant: participant };
     for (var i = 1; i <= 8; i++) {
-      answers['q' + i] = document.querySelector('input[name="q' + i + '"]:checked').value;
+      page1Answers['q' + i] = document.querySelector('input[name="q' + i + '"]:checked').value;
     }
+
+    goToPage('page2');
+  });
+
+  function goToPage(pageId) {
+    document.querySelectorAll('.page-section').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ===== ABCD 加總即時計算共用函式 =====
+  function setupCountQuestion(prefix) {
+    var ids = ['A', 'B', 'C', 'D'].map(function(d) { return prefix + '-' + d; });
+    var totalSpan = document.getElementById(prefix + '-total');
+    var totalDisplay = document.getElementById(prefix + '-total-display');
+
+    function recalc() {
+      var total = 0;
+      ids.forEach(function(id) {
+        var v = parseInt(document.getElementById(id).value, 10);
+        if (isNaN(v) || v < 0) v = 0;
+        total += v;
+      });
+      totalSpan.textContent = total;
+      if (total === 100) {
+        totalDisplay.className = 'total-display ok';
+      } else {
+        totalDisplay.className = 'total-display bad';
+      }
+      return total;
+    }
+
+    ids.forEach(function(id) {
+      document.getElementById(id).addEventListener('input', recalc);
+    });
+
+    recalc();
+    return recalc;
+  }
+
+  var recalcQ9 = setupCountQuestion('q9');
+  var recalcQ10 = setupCountQuestion('q10');
+
+  function getCountValues(prefix) {
+    return {
+      A: parseInt(document.getElementById(prefix + '-A').value, 10) || 0,
+      B: parseInt(document.getElementById(prefix + '-B').value, 10) || 0,
+      C: parseInt(document.getElementById(prefix + '-C').value, 10) || 0,
+      D: parseInt(document.getElementById(prefix + '-D').value, 10) || 0
+    };
+  }
+
+  // ===== 第 2 頁：第 9 題 → 下一頁 =====
+  document.getElementById('q9-next-btn').addEventListener('click', function() {
+    var total = recalcQ9();
+    var errEl = document.getElementById('q9-err');
+    if (total !== 100) {
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+    goToPage('page3');
+  });
+
+  // ===== 第 3 頁：第 10 題 → 提交 =====
+  document.getElementById('q10-submit-btn').addEventListener('click', function() {
+    var total = recalcQ10();
+    var errEl = document.getElementById('q10-err');
+    if (total !== 100) {
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    var q9Vals = getCountValues('q9');
+    var q10Vals = getCountValues('q10');
+
+    var answers = Object.assign({ participant: participant }, page1Answers, {
+      q9_A: q9Vals.A, q9_B: q9Vals.B, q9_C: q9Vals.C, q9_D: q9Vals.D,
+      q10_A: q10Vals.A, q10_B: q10Vals.B, q10_C: q10Vals.C, q10_D: q10Vals.D
+    });
 
     console.log('問卷答案 / Questionnaire answers:', answers);
 
@@ -292,8 +485,9 @@ var params = new URLSearchParams(window.location.search);
       console.error('[Questionnaire] 上傳失敗:', err);
     });
 
-    // 顯示感謝頁
-    document.getElementById('form-section').style.display = 'none';
+    document.querySelectorAll('.page-section').forEach(function(el) {
+      el.classList.remove('active');
+    });
     document.getElementById('thank-you').style.display = 'block';
     window.scrollTo(0, 0);
   });
