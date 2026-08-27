@@ -87,7 +87,7 @@ html = """\
     var dataUploaded = false;
     var uploadInProgress = false;
 
-    var GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmzLzlVqizQH6yGk4FQ2YHSXPRIinEV_IvIanY7MsPjZS1ywl1GdZec6TAwt89OOlqqg/exec';
+    var GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbye81RtdC46x3eE0TPEdZAT30vbwSTnb_cp6JFqTPYH6pwki5H7TQMVRU_MBpsd_Ay-/exec';
 
     // 上傳中/離開頁面警告：避免受試者在資料還沒存完就關閉分頁
     window.addEventListener('beforeunload', function(e) {
