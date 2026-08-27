@@ -76,7 +76,10 @@ html = """\
     checkOrientation();
 
 
-    var participant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random() * 900000 + 100000);
+    var rawParticipant = new URLSearchParams(window.location.search).get('participant') || 'P' + Math.floor(Math.random() * 900000 + 100000);
+    // 防呆：移除空格與可能造成檔案路徑不一致的特殊字元(例如空格會被 PEBL 底層指令列解析截斷)
+    var participant = rawParticipant.trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-\u4e00-\u9fff]/g, '');
+    if (!participant) { participant = 'P' + Math.floor(Math.random() * 900000 + 100000); }
     var lang = new URLSearchParams(window.location.search).get('lang') || 'zh';
     var taskFinished = false;
     var taskStarted = false;
