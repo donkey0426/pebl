@@ -149,7 +149,7 @@ define Start(lPar)
     gFooter.direction <- (-1)
   }
 
- if(gLanguage == "zh")
+if(Lowercase(gLanguage) == "zh")
   {
 instTitleText <- "指導語"
     inst1Text <- "　　在你面前有A、B、C、D四疊牌。你有絕對自由選任何一疊牌去翻，當然一疊牌要翻幾次也隨你的意思。每次你點選完一張牌後，輸贏的情形會同時顯示在牌上方的方框中。電腦並不會告訴你將得到多少錢，當遊戲進行中，你會逐漸領悟出來。" + CR(1) +
