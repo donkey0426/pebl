@@ -149,7 +149,7 @@ define Start(lPar)
     gFooter.direction <- (-1)
   }
 
-if(Lowercase(gLanguage) == "zh")
+  if(Lowercase(gLanguage) == "zh")
   {
     instTitleText <- "指導語"
   } else {
@@ -185,26 +185,6 @@ if(Lowercase(gLanguage) == "zh")
   Hide(gInstTitle)
   Hide(gInstructions)
   Draw()
-
-  WaitForIt()
-  if(inst2BoldText != "")
-  {
-    gInstSubhead.text <- inst2BoldText
-    Show(gInstSubhead)
-  }
-  gInstructions.text <- inst2BodyText
-  Draw()
-
-  WaitForIt()
-  Hide(gInstSubhead)
-  gInstructions.text <- inst3Text
-  Draw()
-
-  WaitForIt()
-  Hide(gInstTitle)
-  Hide(gInstructions)
-  Draw()
-
   #####################################################################
   ## Set up the basic graphical environment (decks, score, etc).
   #####################################################################
